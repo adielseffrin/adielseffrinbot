@@ -20,10 +20,8 @@ class Twitter
     $this->bearer_key = $keys['TWITTER_BEARER_TOKEN'];
 
     $this->ultimoTweet = $this->getUltimoTweet();
+    
   }
-
-
-
 
   function getRetweetText()
   {
@@ -42,21 +40,25 @@ class Twitter
     return $this->httpGet($url);
   }
 
+  public function atualizaRT(){
+    $this->ultimoTweet = $this->getUltimoTweet();
+    var_dump($this->ultimoTweet);
+  }
+
   public function getUltimoTweet()
   {
     if ($this->ultimoTweet == null) {
       $dados = $this->makeSearch('adielseffrin');
-
+      
       $meusTweets = array_filter($dados['data'], function ($v, $k) {
         return $v['author_id'] == "15150876"
           && date('Y-m-d', strtotime($v['created_at'])) >= date("Y-m-d")
-          && $v['source'] == "Streamlabs Twitter";
+          && $v["entities"]["urls"][0]['display_url'] == "twitch.tv/adielseffrin";
       }, ARRAY_FILTER_USE_BOTH);
-
+      
       if (count($meusTweets) > 0)
         $this->ultimoTweet = reset($meusTweets)['id'];
     }
-
     return $this->ultimoTweet;
   }
 
@@ -112,12 +114,71 @@ class Twitter
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_SSL_VERIFYPEER => false
     );
-
+    
     $feed = curl_init();
     curl_setopt_array($feed, $options);
     $json = curl_exec($feed);
     curl_close($feed);
+   
+    return json_decode($json, true);
+  }
 
+  public function Tweetar($mensagem)
+  {
+    $url = 'https://api.twitter.com/1.1/statuses/update.json';
+    $params = [
+      'status' => $mensagem,
+      'source' => 'adielseffrinbot'
+    ];
+    return $this->httpPost($url,$params);
+  }
+
+  public function httpPost($url, $params = null)
+  {
+    $access_token = $this->access_token;
+    $token_secret  = $this->secret_token;
+    $consumer_key = $this->api_key;
+    $consumer_secret  = $this->secret_key;
+
+    if ($params)
+      $request = $params;
+    else
+      $request = [];
+
+    $oauth = array(
+      'oauth_consumer_key'        => $consumer_key,
+      'oauth_nonce'               => time(),
+      'oauth_signature_method'    => 'HMAC-SHA1',
+      'oauth_token'               => $access_token,
+      'oauth_timestamp'           => time(),
+      'oauth_version'             => '1.0'
+    );
+
+    //  merge request and oauth to one array
+    $oauth = array_merge($oauth, $request);
+
+    //  do some magic
+    $base_info              = $this->buildBaseString($url, 'POST', $oauth);
+    $composite_key          = rawurlencode($consumer_secret) . '&' . rawurlencode($token_secret);
+    $oauth_signature            = base64_encode(hash_hmac('sha1', $base_info, $composite_key, true));
+    $oauth['oauth_signature']   = $oauth_signature;
+
+    //  make request
+    $header = array($this->buildAuthorizationHeader($oauth), 'Expect:');
+    $options = array(
+      CURLOPT_HTTPHEADER => $header,
+      CURLOPT_HEADER => false,
+      CURLOPT_URL => $url . "?" . http_build_query($request),
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_SSL_VERIFYPEER => false,
+      CURLOPT_POST => true
+    );
+   
+    $feed = curl_init();
+    curl_setopt_array($feed, $options);
+    $json = curl_exec($feed);
+    curl_close($feed);
+   
     return json_decode($json, true);
   }
 
