@@ -1,48 +1,57 @@
 <?php
+    session_start();
     header('Content-Type: text/event-stream');
     header('Cache-Control: no-cache');
+    header("Access-Control-Allow-Origin: *");
+    //header('Access-Control-Allow-Credentials: false');
+
+    require_once '../config.php';
+    require_once "../ConexaoBD.class.php";
+
+    //$config = new Config();
+    //$BD = new ConexaoBD($config->getUserBD(),$config->getSenhaBD());
+    //$BD->connect();
+    //$conn = $BD->getConn();
 
     $response = array("success"=>true, "msg"=>"", "data"=>"");
-
-    set_time_limit(180); // 3 minuto
-
-    // require_once __DIR__ . "/../gerenciamento/api/src/model/rpg/rpg_dao.php";
-    // require_once __DIR__ . "/../gerenciamento/api/src/model/batalha_mob/batalha_mob_dao.php";
-    // require_once __DIR__ . "/../gerenciamento/api/src/model/batalha_log/batalha_log_dao.php";
-
-    // codigo que controla a carta do mob no frontend do rpg
-    // if (!file_exists(__DIR__ .'/../DB_2')) {
-    //     $response['success'] = false;
-    //     $response['msg'] = "** OPA! Você precisa modificar o diretório DB_2_mock para DB_2 para ativar o banco de dados! **";
-    //     die ("data: ".json_encode($response)."\n\n");
-    // }
-
-    // $rpg_dao = new rpg_dao();
-    // $batalha_mob_dao = new batalha_mob_dao();
-    // $batalha_log_dao = new batalha_log_dao();
+    $tempoGlobal = "";
+    set_time_limit(180); // 3 minutos
 
     // variável de comparação
     // utilizada para verificar alterações de estado nos dados
-    $temp = null;
+    $ultimaExibicao = null;
 
     // laço onde acontece a vida útil
     while (true) {
 
-        $data = array(
-            "oi" => "ola"
-        );
-
+        $result = @file_get_contents('../dados_ranking.json');
+        $dados = json_decode($result, true);
+        if (empty($dados)) $dados = array(); // se a dados estiver nula
+        $data = isset($dados[3]["time"]) ? $dados[3]["time"] : null;
+        $interval = 0;
+        $executar = false;
+        
+        if($data != null){
+            if($ultimaExibicao == null){
+                $ultimaExibicao = date_create($data);
+                $executar = true;
+            }else{
+                $interval = date_diff($ultimaExibicao, date_create($data))->format('%s');
+                if($interval > 60){
+                    $ultimaExibicao = date_create($data);
+                    $executar = true;
+                }
+            }
+        }
         // montando a string de teste que compara alterações de dados
         $test = json_encode($data);
-
-        if ($temp !== $test) {
-            // passando data para a controladora temp
-            $temp = $test;
-
+        
+        if ($executar) {
+            $executar = false;
             // adicionado a response as informações
             $response['success'] = true;
             $response['msg'] = "Tudo certo";
-            $response['data'] = $data;
+            $response['data'] = $dados;
 
             // devolvendo para o js a resposta do event source
             echo "data: " . json_encode($response) . "\n\n";

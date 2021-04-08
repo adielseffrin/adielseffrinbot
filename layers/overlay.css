@@ -1,0 +1,136 @@
+:root {
+    --first-background: #e8bd42;
+    --second-background: #abaaaa;
+    --third-background: #db9f51;
+    --font-color: #20253e;
+  }
+  
+  * {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: "Roboto", sans-serif;
+  }
+  
+  h1 {
+    color: var(--font-color);
+    font-weight: bold;
+    text-shadow: 2px 2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff,
+      -2px -2px 0 #fff, 2px 0px 0 #fff, 0px 2px 0 #fff, -2px 0px 0 #fff,
+      0px -2px 0 #fff;
+  }
+  
+  html,
+  body {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+
+  }
+  
+  .ranking {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    position: relative;
+    width: 800px;
+    background-color: #191622;
+    
+  }
+  
+  .ranking__item {
+    display: flex;
+    flex-direction: column;
+    height: 350px;
+    max-width: 250px;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  
+  .place {
+    color: #fff;
+    font-weight: bold;
+    font-size: 2.5rem;
+    padding: 10px;
+    text-shadow: 1px 1px 0 var(--font-color), 1px -1px 0 var(--font-color),
+      -1px 1px 0 var(--font-color), -1px -1px 0 var(--font-color),
+      1px 0px 0 var(--font-color), 0px 1px 0 var(--font-color),
+      -1px 0px 0 var(--font-color), 0px -1px 0 var(--font-color);
+  }
+  
+  .place > span {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 1.25rem;
+    text-shadow: none;
+    color: rgb(230, 191, 19);
+    
+  }
+  
+  .podium {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 250px;
+  }
+  
+  .podium__first {
+    height: 275px;
+    background-color: var(--first-background);
+    z-index: 1;
+    box-shadow: 18px 0 10px -5px #00000073, -18px 0 10px -5px #00000073;
+  }
+  
+  .podium__second {
+    height: 200px;
+    background-color: var(--second-background);
+  }
+  
+  .podium__third {
+    height: 150px;
+    background-color: var(--third-background);
+  }
+  
+  .floor {
+    width: 275px;
+    height: 30px;
+    box-shadow: 0px 20px 25px 0px rgb(0 0 0 / 40%);
+  }
+  
+  .first__floor {
+    background: var(--first-background);
+  }
+  
+  .second__floor {
+    background: var(--second-background);
+  }
+  
+  .third__floor {
+    background: var(--third-background);
+  }
+  
+  .base {
+    position: absolute;
+    width: 100%;
+    background: #a97e47;
+    height: 20px;
+    z-index: 2;
+    border-top: 3px solid #9e743e;
+    border-right: 3px solid #9e743e;
+    border-left: 3px solid #9e743e;
+  }
+  
+  .one {
+    font-size: 10rem;
+  }
+  
+  .two {
+    font-size: 7rem;
+  }
+  
+  .three {
+    font-size: 5rem;
+  }
+  

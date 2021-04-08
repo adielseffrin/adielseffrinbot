@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once "./Fome.class.php";
 
 class Usuario{
@@ -6,6 +7,9 @@ class Usuario{
     private $id;
     private $fome;
     private $sub;
+
+    static $ranking = array();
+    static $ultimaExibicao = null;
 
     public function __construct($nick)
     {
@@ -104,35 +108,68 @@ class Usuario{
     }
 
     public function getRanking($conn){
-      $mensagem = "Olha o ranking dos esfomeados! ";
-      $c = 1;
-      $achou = false;
-      try{
-        $conn->beginTransaction();
-        $sql = "select u.nick as nick, t.id_usuario as id_usuario, round(sum(t.pontos),2) as pontos from tentativas_fome as t inner join usuarios as u on u.id = t.id_usuario where t.data_tentativa between '".date('Y-m-01')."' and '".date('Y-m-t')."' group by t.id_usuario  order by pontos desc LIMIT 3;";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute(array(':id'=>$this->id));
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if(empty($result)){
-          $mensagem = "Ué, ninguém jogou ainda?";
-        }else{
-          foreach($result as $val){
-            if($this->id == $val['id_usuario']) $achou = true;
-            $mensagem .= ($c++)."- ".$val['nick']." com ".$val['pontos']." pontos. ";
-          }
-          if($achou){
-            $mensagem .= "E aí @".$this->nick." , será que você se mantém no pódio?!🥇🥈🥉";
-          }else{ 
-            $data = $this->getPosition($conn);
-            if(!empty($data)){ 
-              $mensagem .= $data['position']."- @".$this->nick." com ".$data['pontos']." pontos. ";
+      if(empty($ranking)){
+        $mensagem = "Olha o ranking dos esfomeados! ";
+        $dadosArray = array();
+        $c = 1;
+        $pos = 0;
+        try{
+          $conn->beginTransaction();
+          $sql = "select 0 as posicao, u.nick as nick, t.id_usuario as id_usuario, round(sum(t.pontos),2) as pontos from tentativas_fome as t inner join usuarios as u on u.id = t.id_usuario where t.data_tentativa between '".date('Y-m-01')."' and '".date('Y-m-t')."' group by t.id_usuario  order by pontos desc;";
+          $stmt = $conn->prepare($sql);
+          $stmt->execute(array(':id'=>$this->id));
+          $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+          if(empty($result)){
+            $mensagem = "Ué, ninguém jogou ainda?";
+          }else{
+            foreach($result as $key => $val){
+              $result[$key]['posicao'] = $c++;
+            }
+            for($i = 0; $i< 3; ++$i){
+              if($this->id == $result[$i]['id_usuario']) $pos = $result[$i]['posicao'];
+              $mensagem .= $result[$i]['posicao']."- ".$result[$i]['nick']." com ".$result[$i]['pontos']." pontos. ";
+              array_push($dadosArray, array('posicao'=>$result[$i]['posicao'], 'nick' => $result[$i]['nick'], 'pontos' => $result[$i]['pontos']));
+            }
+            
+            $index = array_search($this->id,array_column($result, 'id_usuario'));
+            if(!!$index){
+              if($result[$index]['posicao'] <= 3){
+                $mensagem .= "E aí @".$this->nick." , será que você se mantém no pódio?!🥇🥈🥉";
+              }else{ 
+                if($this->nick != "adielseffrin"){ 
+                  $mensagem .= $result[$index]['posicao']."- @".$this->nick." com ".$result[$index]['pontos']." pontos. ";
+                }
+              }
             }
           }
+          
+          $executar = false;
+          if(!empty($dadosArray)){
+            $data = date('Y-m-d H:i:s');
+            if(self::$ultimaExibicao == null ){
+              self::$ultimaExibicao = date_create($data);
+              $executar = true;
+            }else{
+              $interval = date_diff(self::$ultimaExibicao, date_create($data))->format('%s');
+              if($interval > 60){
+                self::$ultimaExibicao = date_create($data);
+                $executar = true;
+              }
+            }
+
+            if($executar){
+              array_push($dadosArray,array('time' => $data));
+              $file = 'dados_ranking.json';
+              file_put_contents($file, json_encode($dadosArray));
+            }else{
+              $mensagem .= "Ainda falta ".(60-$interval)." segundos para exibir em tela.";
+            }
+          }
+          $conn->commit();
+        }catch(PDOExecption $e) {
+          $conn->rollback();
+          print "Error!: " . $e->getMessage() . "</br>";
         }
-        $conn->commit();
-      }catch(PDOExecption $e) {
-        $conn->rollback();
-        print "Error!: " . $e->getMessage() . "</br>";
       }
       return $mensagem; 
     }

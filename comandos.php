@@ -113,7 +113,9 @@ function comandos($message, $write, $canal)
   $comandos_p2 .="!foca = Parar de enrolar e focar no código || ";
   $comandos_p2 .="!discord = Venha conhecer o melhor server da galacta || ";
   $comandos_p2 .="!rt = Veja o link do twitter dessa live e ajude aí || ";
-  $comandos_p2 .="!prime = Saiba como ajudar a live com seu sub do prime! ";
+  $comandos_p2 .="!prime = Saiba como ajudar a live com seu sub do prime! || ";
+  $comandos_p2 .="!fome = Quer ganhar um 'ifood' de até R$20? Acumule pontos e ganhe no final do mês! || ";
+  $comandos_p2 .="!ranking = Confira sua posição no nosso jogo!";
 
   $write->ircPrivmsg($canal, "Ei @$username, confere ai! ->" . $comandos_p1);
   $write->ircPrivmsg($canal, "Seguindo..., ".$comandos_p2);
