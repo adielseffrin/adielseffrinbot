@@ -150,19 +150,20 @@ class Usuario{
               self::$ultimaExibicao = date_create($data);
               $executar = true;
             }else{
-              $interval = date_diff(self::$ultimaExibicao, date_create($data))->format('%s');
-              if($interval > 60){
+              $interval = date_diff(self::$ultimaExibicao, date_create($data));
+              $minutos = $interval->format('%i');
+              $segundos = $interval->format('%s');
+              if($minutos >= 1){
                 self::$ultimaExibicao = date_create($data);
                 $executar = true;
               }
             }
-
             if($executar){
               array_push($dadosArray,array('time' => $data));
               $file = 'dados_ranking.json';
               file_put_contents($file, json_encode($dadosArray));
             }else{
-              $mensagem .= "Ainda falta ".(60-$interval)." segundos para exibir em tela.";
+              $mensagem .= "Ainda falta ".(60-$segundos)." segundos para exibir em tela.";
             }
           }
           $conn->commit();

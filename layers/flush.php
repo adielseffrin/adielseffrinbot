@@ -36,8 +36,8 @@
                 $ultimaExibicao = date_create($data);
                 $executar = true;
             }else{
-                $interval = date_diff($ultimaExibicao, date_create($data))->format('%s');
-                if($interval > 60){
+                $interval = date_diff($ultimaExibicao, date_create($data))->format('%i');
+                if($interval >= 1){
                     $ultimaExibicao = date_create($data);
                     $executar = true;
                 }

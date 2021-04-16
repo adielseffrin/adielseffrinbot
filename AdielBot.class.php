@@ -3,6 +3,7 @@ require_once 'config.php';
 require_once 'vendor/autoload.php';
 require_once './comandos.php';
 require_once './Twitter.class.php';
+require_once './Twitch.class.php';
 require_once './ConexaoBD.class.php';
 require_once './Usuario.class.php';
 
@@ -18,6 +19,7 @@ class AdielBot
   protected $client;
   protected $socketConnector;
   private $twitter;
+  private $twitch;
   private $write;
   private $debugando;
   private $conn;
@@ -51,7 +53,6 @@ class AdielBot
   {
     $this->client->on('connect.after.each', function ($c, $write) {
       $this->onJoin($c, $write);
-      //$this->sendRetweet($this->client, $this->config->getRetweetTime(), $write);
       $this->client->addPeriodicTimer($this->config->getRetweetTime(), function () use ($write) {
         retweet($this->twitter, $write, $this->config->getChannelName());
       });
@@ -61,6 +62,9 @@ class AdielBot
           prime($write, $this->config->getChannelName());
         });
       });
+
+      $this->atualizaListaSubs($this->twitch->getSubs());
+      
     });
 
     $this->client->on('irc.received', function ($m, $w, $c, $l) {
@@ -71,15 +75,6 @@ class AdielBot
     $this->client->run($this->connection);
   }
 
-  // function sendRetweet($client, $waitTime, $write)
-  // {
-  //   $client->addTimer($waitTime, function () use ($client, $waitTime, $write) {
-  //     retweet($this->twitter, $write, $this->config->getChannelName());
-  //     $this->sendRetweet($client, $waitTime + 1, $write);
-  //   });
-  // }
-
-
   function onJoin($connection, $write)
   {
 
@@ -88,7 +83,8 @@ class AdielBot
     
     //$this->debugando = new Debugando();
     $this->twitter = new Twitter($this->config->getTwitterKeys());
-    //lembreteRetweet($loop, $twitter, $write, $seuCanal);
+    $this->twitch = new Twitch($this->config->getTwitchKeys());
+    
   }
 
   function onMessage($message, $write, $connection, $logger)
@@ -179,7 +175,7 @@ class AdielBot
             apresentar($message, $write, $this->config->getChannelName());
             break;
           case "!teste":
-            testSocket($this->socketConnector);
+            //$this->atualizaListaSubs($this->twitch->getSubs());
             break;
           case "!addsub":
           case "!removesub":
@@ -242,6 +238,29 @@ class AdielBot
     }else{
       return $mensagensReuniao[rand(0,count($mensagensReuniao)-1)];
     }
+  }
+
+  private function atualizaListaSubs($subs){
+    $subsNames = array();
+    foreach($subs['data'] as $sub){
+      array_push($subsNames,$sub['user_login']);
+    }
+    $parametros = implode(',', array_fill(0, count($subsNames), '?'));
+    try{
+      $this->conn->beginTransaction();
+      
+      $stmt = $this->conn->prepare('UPDATE usuarios SET sub = 0');
+      $stmt->execute();
+      
+      $stmt = $this->conn->prepare("UPDATE usuarios SET sub = 1 WHERE nick IN ({$parametros})");
+      $stmt->execute($subsNames);
+      
+      $this->conn->commit();
+    }catch(PDOExecption $e) {
+      $this->conn->rollback();
+      print "Error!: " . $e->getMessage() . "</br>";
+    } 
+  
   }
 
 }
