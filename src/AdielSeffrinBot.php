@@ -1,17 +1,22 @@
 <?php
-require_once 'config.php';
-require_once 'vendor/autoload.php';
-require_once './comandos.php';
-require_once './Twitter.class.php';
-require_once './Twitch.class.php';
-require_once './ConexaoBD.class.php';
-require_once './Usuario.class.php';
+
+namespace AdielSeffrinBot;
 
 use Phergie\Irc\Bot\React\PluginInterface;
 use React\EventLoop\LoopInterface;
 use Phergie\Irc\Client\React\LoopAwareInterface;
 
-class AdielBot
+use AdielSeffrinBot\Config;
+use AdielSeffrinBot\Models\Twitter;
+use AdielSeffrinBot\Models\Twitch;
+use AdielSeffrinBot\Models\Usuario;
+use AdielSeffrinBot\Models\ConexaoBD;
+
+
+//require_once 'config.php';
+require_once 'comandos.php';
+
+class AdielSeffrinBot
 {
 
   private $config;
@@ -25,8 +30,6 @@ class AdielBot
   private $conn;
   private $ausenciaArray;
   private $pessoasNoChat;
-
-
 
   public function __construct()
   {
@@ -43,7 +46,7 @@ class AdielBot
       ->setUsername($this->config->getBotName());
 
     $this->client = new \Phergie\Irc\Client\React\Client();
-    $this->socketConnector = new React\Socket\Connector($this->client->getLoop());
+    //$this->socketConnector = new React\Socket\Connector($this->client->getLoop());
     $this->ausenciaArray = array();
     $this->pessoasNoChat = array();
     
