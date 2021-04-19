@@ -1,10 +1,32 @@
 {
+  "name" : "adielseffrin/adielseffrinbot",
+  "type" : "project",
+  "autoload": {
+    "psr-4": {
+      "Adielseffrinbot\\": "src/"
+    }
+  },
   "require": {
+    "php": "^7.0 || ^5.4",
     "react/event-loop": "^1.1",
     "react/filesystem": "^0.1.2",
     "wyrihaximus/react-child-process-pool": "^1.6",
     "phergie/phergie-irc-client-react": "^3.1",
     "phergie/phergie-irc-bot-react": "^2.0"
+  },
+  "scripts": {
+    "start:bd-server" :"sudo service mysql start",
+    "start:db" : "mariadb -ppassword",
+    "start" : "php bot.php",
+    "start:all" : [
+      "@composer start:bd-server",
+      "@composer start:db",
+      "@composer start"
+    ],
+    "start:layer": "php -S 127.0.0.1:8088 layers/flush.php"
+  },
+  "config":{
+    "process-timeout": 0
   },
   "repositories": [
     {

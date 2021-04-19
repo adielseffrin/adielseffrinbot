@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "36432899e114d9920efbd8001246a6ae",
+    "content-hash": "35e3b32fd6d2dedbf97eb972c2906a77",
     "packages": [
         {
             "name": "cakephp/core",
-            "version": "3.9.6",
+            "version": "3.9.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cakephp/core.git",
-                "reference": "1768817b61dbb500b7dd4b0a9e603479b7b00cc2"
+                "reference": "eadccd407141ea8ef8afac5e01467110543d6484"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cakephp/core/zipball/1768817b61dbb500b7dd4b0a9e603479b7b00cc2",
-                "reference": "1768817b61dbb500b7dd4b0a9e603479b7b00cc2",
+                "url": "https://api.github.com/repos/cakephp/core/zipball/eadccd407141ea8ef8afac5e01467110543d6484",
+                "reference": "eadccd407141ea8ef8afac5e01467110543d6484",
                 "shasum": ""
             },
             "require": {
@@ -54,11 +54,11 @@
                 "core",
                 "framework"
             ],
-            "time": "2020-10-28T18:13:14+00:00"
+            "time": "2021-03-08T16:46:32+00:00"
         },
         {
             "name": "cakephp/utility",
-            "version": "3.9.6",
+            "version": "3.9.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cakephp/utility.git",
@@ -111,26 +111,26 @@
         },
         {
             "name": "doctrine/inflector",
-            "version": "1.4.3",
+            "version": "1.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/inflector.git",
-                "reference": "4650c8b30c753a76bf44fb2ed00117d6f367490c"
+                "reference": "4bd5c1cdfcd00e9e2d8c484f79150f67e5d355d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/inflector/zipball/4650c8b30c753a76bf44fb2ed00117d6f367490c",
-                "reference": "4650c8b30c753a76bf44fb2ed00117d6f367490c",
+                "url": "https://api.github.com/repos/doctrine/inflector/zipball/4bd5c1cdfcd00e9e2d8c484f79150f67e5d355d9",
+                "reference": "4bd5c1cdfcd00e9e2d8c484f79150f67e5d355d9",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.2 || ^8.0"
+                "php": "^7.1 || ^8.0"
             },
             "require-dev": {
-                "doctrine/coding-standard": "^7.0",
-                "phpstan/phpstan": "^0.11",
-                "phpstan/phpstan-phpunit": "^0.11",
-                "phpstan/phpstan-strict-rules": "^0.11",
+                "doctrine/coding-standard": "^8.0",
+                "phpstan/phpstan": "^0.12",
+                "phpstan/phpstan-phpunit": "^0.12",
+                "phpstan/phpstan-strict-rules": "^0.12",
                 "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0"
             },
             "type": "library",
@@ -199,7 +199,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-05-29T07:19:59+00:00"
+            "time": "2021-04-16T17:34:40+00:00"
         },
         {
             "name": "doctrine/instantiator",
@@ -1723,16 +1723,16 @@
         },
         {
             "name": "wyrihaximus/react-child-process-messenger",
-            "version": "2.10.0",
+            "version": "2.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WyriHaximus/reactphp-child-process-messenger.git",
-                "reference": "813bd47c69935edc1a054438f47622b629430e13"
+                "reference": "aca3f5488ae8cda363cf6af7e3aa4ee19ae65391"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WyriHaximus/reactphp-child-process-messenger/zipball/813bd47c69935edc1a054438f47622b629430e13",
-                "reference": "813bd47c69935edc1a054438f47622b629430e13",
+                "url": "https://api.github.com/repos/WyriHaximus/reactphp-child-process-messenger/zipball/aca3f5488ae8cda363cf6af7e3aa4ee19ae65391",
+                "reference": "aca3f5488ae8cda363cf6af7e3aa4ee19ae65391",
                 "shasum": ""
             },
             "require": {
@@ -1776,7 +1776,13 @@
                 }
             ],
             "description": "Messenger decorator for react/child-process",
-            "time": "2019-08-28T15:10:40+00:00"
+            "funding": [
+                {
+                    "url": "https://github.com/WyriHaximus",
+                    "type": "github"
+                }
+            ],
+            "time": "2021-04-17T20:02:05+00:00"
         },
         {
             "name": "wyrihaximus/react-child-process-pool",
@@ -1935,7 +1941,9 @@
     "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": "^7.0 || ^5.4"
+    },
     "platform-dev": [],
     "plugin-api-version": "1.1.0"
 }
