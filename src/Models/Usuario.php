@@ -1,6 +1,8 @@
 <?php
+namespace AdielSeffrinBot\Models;
+use AdielSeffrinBot\Models\Fome;
+
 session_start();
-require_once "./Fome.class.php";
 
 class Usuario{
     private $nick;

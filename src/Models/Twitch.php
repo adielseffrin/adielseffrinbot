@@ -1,4 +1,5 @@
 <?php
+namespace AdielSeffrinBot\Models;
 
 class Twitch{
     private $clientId;
