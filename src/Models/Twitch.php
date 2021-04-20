@@ -9,13 +9,13 @@ class Twitch{
     private $userToken;
     private $userId;
 
-    public function __construct($keys)
+    public function __construct()
   {
-    $this->clientId = $keys['clientId'];
-    $this->clientSecret = $keys['clientSecret'];
-    $this->clientToken = $keys['clientToken'];
-    $this->userToken = $keys['userToken'];
-    $this->userId = $keys['userId'];
+    $this->clientId = $_SERVER['TWITCH_API_CLIENTID'];
+    $this->clientSecret = $_SERVER['TWITCH_API_CLIENTSECRET'];
+    $this->clientToken = $_SERVER['TWITCH_API_CLIENTTOKEN'];
+    $this->userToken = $_SERVER['TWITCH_API_USERTOKEN'];
+    $this->userId = $_SERVER['TWITCH_API_USERID'];
     
   }
 

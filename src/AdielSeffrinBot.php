@@ -6,14 +6,13 @@ use Phergie\Irc\Bot\React\PluginInterface;
 use React\EventLoop\LoopInterface;
 use Phergie\Irc\Client\React\LoopAwareInterface;
 
-use AdielSeffrinBot\Config;
+
 use AdielSeffrinBot\Models\Twitter;
 use AdielSeffrinBot\Models\Twitch;
 use AdielSeffrinBot\Models\Usuario;
 use AdielSeffrinBot\Models\ConexaoBD;
 
 
-//require_once 'config.php';
 require_once 'comandos.php';
 
 class AdielSeffrinBot
@@ -33,17 +32,16 @@ class AdielSeffrinBot
 
   public function __construct()
   {
-    $this->config = new Config();
-    $BD = new ConexaoBD($this->config->getUserBD(),$this->config->getSenhaBD());
+    $BD = new ConexaoBD();
     $BD->connect();
     $this->conn = $BD->getConn();
     $this->connection = new \Phergie\Irc\Connection();
     $this->connection
       ->setServerHostname('irc.chat.twitch.tv')
       ->setServerPort(6667)
-      ->setPassword($this->config->getPassword())
-      ->setNickname($this->config->getBotName())
-      ->setUsername($this->config->getBotName());
+      ->setPassword($_SERVER['TWITCH_PASSWORD'])
+      ->setNickname($_SERVER['TWITCH_NICKNAME'])
+      ->setUsername($_SERVER['TWITCH_USERNAME']);
 
     $this->client = new \Phergie\Irc\Client\React\Client();
     //$this->socketConnector = new React\Socket\Connector($this->client->getLoop());
@@ -56,13 +54,13 @@ class AdielSeffrinBot
   {
     $this->client->on('connect.after.each', function ($c, $write) {
       $this->onJoin($c, $write);
-      $this->client->addPeriodicTimer($this->config->getRetweetTime(), function () use ($write) {
-        retweet($this->twitter, $write, $this->config->getChannelName());
+      $this->client->addPeriodicTimer($_SERVER['RETWEETTIME'], function () use ($write) {
+        retweet($this->twitter, $write, $_SERVER['TWITCH_CHANNEL']);
       });
 
       $this->client->addTimer(180, function () use ($write){
-        $this->client->addPeriodicTimer($this->config->getPrimeTime(), function () use ($write) {
-          prime($write, $this->config->getChannelName());
+        $this->client->addPeriodicTimer($_SERVER['PRIMETIME'], function () use ($write) {
+          prime($write, $_SERVER['TWITCH_CHANNEL']);
         });
       });
 
@@ -81,12 +79,12 @@ class AdielSeffrinBot
   function onJoin($connection, $write)
   {
 
-    $write->ircJoin($this->config->getChannelName());
-    $write->ircPrivmsg($this->config->getChannelName(), 'Sou um bot ou um bug?');
+    $write->ircJoin($_SERVER['TWITCH_CHANNEL']);
+    $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], 'Sou um bot ou um bug?');
     
     //$this->debugando = new Debugando();
-    $this->twitter = new Twitter($this->config->getTwitterKeys());
-    $this->twitch = new Twitch($this->config->getTwitchKeys());
+    $this->twitter = new Twitter();
+    $this->twitch = new Twitch();
     
   }
 
@@ -110,41 +108,41 @@ class AdielSeffrinBot
       if (!is_null($comando)) {
         switch ($comando) {
           case "!ban":
-            ban($message, $write, $this->config->getChannelName());
+            ban($message, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!pergunta":
-            perguntas($message, $write, $this->config->getChannelName());
+            perguntas($message, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!social":
           case "!twitter":
           case "!github":
           case "!instagram":
           case "!discord":
-            social($message, $write, $this->config->getChannelName());
+            social($message, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!comandos":
-            comandos($message, $write, $this->config->getChannelName());
+            comandos($message, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!rt":
-            retweet($this->twitter, $write, $this->config->getChannelName());
+            retweet($this->twitter, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           // case "!debugando":
-          //   $this->debugando->tratarComando($message, $write, $this->config->getChannelName());
+          //   $this->debugando->tratarComando($message, $write, $_SERVER['TWITCH_CHANNEL']);
           //   break;
           case "!fome":
           case "!ranking":
             $username = str_replace("@", "", $message['user']);
             $index = array_search($username,array_column($this->pessoasNoChat, 'user'));
-            comandosBD($message, $write, $this->config->getChannelName(), $this->conn, $this->pessoasNoChat[$index]);
+            comandosBD($message, $write, $_SERVER['TWITCH_CHANNEL'], $this->conn, $this->pessoasNoChat[$index]);
             //$username = str_replace("@", "", $message['user']);
-            //$write->ircPrivmsg($this->config->getChannelName(), "Sabia @" . $username . ", que fome é pode ser um estado de espírito?");
+            //$write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Sabia @" . $username . ", que fome é pode ser um estado de espírito?");
             break;
           case "!reuniao":
           case "!reunião":
             $username = str_replace("@", "", $message['user']);
             $index = array_search($username,array_column($this->ausenciaArray, 'user'));
             if($index === false){
-              $write->ircPrivmsg($this->config->getChannelName(), "Boa reunião @" . $username . "!");
+              $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Boa reunião @" . $username . "!");
               array_push($this->ausenciaArray,array('user' => $username, 'event' => 'reuniao'));
             }
             break;
@@ -152,7 +150,7 @@ class AdielSeffrinBot
             $username = str_replace("@", "", $message['user']);
             $index = array_search($username,array_column($this->ausenciaArray, 'user'));
             if($index === false){
-              $write->ircPrivmsg($this->config->getChannelName(), "Obrigado pelo lurk @" . $username . "!");
+              $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Obrigado pelo lurk @" . $username . "!");
               array_push($this->ausenciaArray,array('user' => $username, 'event' => 'lurk'));
             }
             break;
@@ -160,22 +158,22 @@ class AdielSeffrinBot
             $username = str_replace("@", "", $message['user']);
             $index = array_search($username,array_column($this->ausenciaArray, 'user'));
             if($index !== false){
-              $write->ircPrivmsg($this->config->getChannelName(), "Aeeee 🎆🎉🎊, @" . $username . ", que bom que você voltou!");
+              $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Aeeee 🎆🎉🎊, @" . $username . ", que bom que você voltou!");
               unset($this->ausenciaArray[$index]);
               $this->ausenciaArray = array_values($this->ausenciaArray);
             }
             break;
           case "!prime"  :
-            prime($write, $this->config->getChannelName());
+            prime($write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!liveon":
           case "!atualizart":
           case "!tweetapramim":
-            comandosPvt($message,$this->twitter, $write, $this->config->getChannelName());
+            comandosPvt($message,$this->twitter, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!apresentação":
           case "!apresentacao":
-            apresentar($message, $write, $this->config->getChannelName());
+            apresentar($message, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!teste":
             //$this->atualizaListaSubs($this->twitch->getSubs());
@@ -185,7 +183,7 @@ class AdielSeffrinBot
             if(!empty($stack[1])){
               $username = $stack[1];
               $index = $this->verificaUserNoChat($username, $this->conn);
-              comandosPvt($message,null, $write, $this->config->getChannelName(), $this->conn, $this->pessoasNoChat[$index]);
+              comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL'], $this->conn, $this->pessoasNoChat[$index]);
             }
             break;
         };
@@ -215,7 +213,7 @@ class AdielSeffrinBot
     $index = array_search($username,array_column($this->ausenciaArray, 'user'));
     if($index !== false){
       $tipoAusencia = $this->ausenciaArray[$index]['event'];
-      $write->ircPrivmsg($this->config->getChannelName(), $this->retornaMensagemAusencia($username, $tipoAusencia));
+      $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], $this->retornaMensagemAusencia($username, $tipoAusencia));
       unset($this->ausenciaArray[$index]);
       $this->ausenciaArray = array_values($this->ausenciaArray);
     }

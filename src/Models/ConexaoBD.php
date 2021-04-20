@@ -3,19 +3,13 @@ namespace AdielSeffrinBot\Models;
 
 class ConexaoBD{
     
-  private $usuario;
-  private $senha;
   private $conn;
 
-  public function __construct($user, $pass)
-  {
-      $this->usuario = $user;
-      $this->senha = $pass;
-  }
+  public function __construct(){}
 
   public function connect(){
     try {
-        $this->conn = new \PDO('mysql:host=localhost;dbname=basedobot', $this->usuario, $this->senha);
+        $this->conn = new \PDO("{$_SERVER['DATABASE_DRIVER']}:host={$_SERVER['DATABASE_HOST']};dbname={$_SERVER['DATABASE_NAME']}", $_SERVER['DATABASE_USER'], $_SERVER['DATABASE_PASSWORD']);
         $this->conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     } catch(PDOException $e) {
         echo 'ERROR: ' . $e->getMessage();
