@@ -4,6 +4,7 @@ use AdielSeffrinBot\Models\Fome;
 
 session_start();
 
+
 class Usuario{
     private $nick;
     private $id;

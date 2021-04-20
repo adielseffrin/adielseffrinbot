@@ -21,7 +21,8 @@ class Twitch{
 
   public function getSubs(){
     $url = "https://api.twitch.tv/helix/subscriptions?broadcaster_id=$this->userId";
-    return $this->httpGet($url, null, 'user');
+    $data = $this->httpGet($url, null, 'user'); 
+    return $data;
     
   }
 
