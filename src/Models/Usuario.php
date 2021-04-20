@@ -121,7 +121,7 @@ class Usuario{
           $sql = "select 0 as posicao, u.nick as nick, t.id_usuario as id_usuario, round(sum(t.pontos),2) as pontos from tentativas_fome as t inner join usuarios as u on u.id = t.id_usuario where t.data_tentativa between '".date('Y-m-01')."' and '".date('Y-m-t')."' group by t.id_usuario  order by pontos desc;";
           $stmt = $conn->prepare($sql);
           $stmt->execute(array(':id'=>$this->id));
-          $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+          $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
           if(empty($result)){
             $mensagem = "Ué, ninguém jogou ainda?";
           }else{
