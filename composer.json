@@ -12,7 +12,8 @@
     "react/filesystem": "^0.1.2",
     "wyrihaximus/react-child-process-pool": "^1.6",
     "phergie/phergie-irc-client-react": "^3.1",
-    "phergie/phergie-irc-bot-react": "^2.0"
+    "phergie/phergie-irc-bot-react": "^2.0",
+    "symfony/dotenv": "^5.2"
   },
   "scripts": {
     "start:bd-server" :"sudo service mysql start",
