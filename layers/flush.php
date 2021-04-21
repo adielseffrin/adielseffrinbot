@@ -5,14 +5,6 @@
     header("Access-Control-Allow-Origin: *");
     //header('Access-Control-Allow-Credentials: false');
 
-    require_once '../config.php';
-    require_once "../ConexaoBD.class.php";
-
-    //$config = new Config();
-    //$BD = new ConexaoBD($config->getUserBD(),$config->getSenhaBD());
-    //$BD->connect();
-    //$conn = $BD->getConn();
-
     $response = array("success"=>true, "msg"=>"", "data"=>"");
     $tempoGlobal = "";
     set_time_limit(180); // 3 minutos

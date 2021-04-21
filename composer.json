@@ -21,7 +21,6 @@
     "start" : "php bot.php",
     "start:all" : [
       "@composer start:bd-server",
-      "@composer start:db",
       "@composer start"
     ],
     "start:layer": "php -S 127.0.0.1:8088 layers/flush.php"
