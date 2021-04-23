@@ -1,4 +1,5 @@
 <?php
+use AdielSeffrinBot\Models\Pizza;
 
 function ban($message, $write, $canal)
 {
@@ -147,6 +148,11 @@ function comandosBD($message, $write, $canal, $conn, $usuarioArray){
         $userObj = $usuarioArray['object'];
         $mensagem = $userObj->getRanking($conn);
         $write->ircPrivmsg($canal, $mensagem);
+      break;
+      case "!pizza":
+        $userObj = $usuarioArray['object'];
+        if(Pizza::coletaAtiva($userObj->getId()))
+          Pizza::guardaIngrediente($userObj->getId());
       break;
     }
   }elseif(count($stack) == 2){

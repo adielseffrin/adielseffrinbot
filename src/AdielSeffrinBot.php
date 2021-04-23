@@ -11,7 +11,7 @@ use AdielSeffrinBot\Models\Twitter;
 use AdielSeffrinBot\Models\Twitch;
 use AdielSeffrinBot\Models\Usuario;
 use AdielSeffrinBot\Models\ConexaoBD;
-
+use AdielSeffrinBot\Models\Pizza;
 
 require_once 'comandos.php';
 
@@ -35,6 +35,7 @@ class AdielSeffrinBot
     $BD = new ConexaoBD();
     $BD->connect();
     $this->conn = $BD->getConn();
+    Pizza::$conn = $this->conn;
     $this->connection = new \Phergie\Irc\Connection();
     $this->connection
       ->setServerHostname('irc.chat.twitch.tv')
@@ -63,6 +64,10 @@ class AdielSeffrinBot
           prime($write, $_SERVER['TWITCH_CHANNEL']);
         });
       });
+
+      //$this->client->addPeriodicTimer(60, function () use ($write) {
+        var_dump(Pizza::sorteiaIngrediente());
+      //});
 
       $this->atualizaListaSubs($this->twitch->getSubs());
       
@@ -129,13 +134,12 @@ class AdielSeffrinBot
           // case "!debugando":
           //   $this->debugando->tratarComando($message, $write, $_SERVER['TWITCH_CHANNEL']);
           //   break;
+          case "!pizza":
           case "!fome":
           case "!ranking":
             $username = str_replace("@", "", $message['user']);
             $index = array_search($username,array_column($this->pessoasNoChat, 'user'));
             comandosBD($message, $write, $_SERVER['TWITCH_CHANNEL'], $this->conn, $this->pessoasNoChat[$index]);
-            //$username = str_replace("@", "", $message['user']);
-            //$write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Sabia @" . $username . ", que fome é pode ser um estado de espírito?");
             break;
           case "!reuniao":
           case "!reunião":
