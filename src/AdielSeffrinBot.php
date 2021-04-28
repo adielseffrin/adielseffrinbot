@@ -65,9 +65,10 @@ class AdielSeffrinBot
         });
       });
 
-      //$this->client->addPeriodicTimer(60, function () use ($write) {
-        var_dump(Pizza::sorteiaIngrediente());
-      //});
+      Pizza::$write = $write;
+      $this->client->addPeriodicTimer(360, function () use ($write) {
+        Pizza::sorteia();
+      });
 
       $this->atualizaListaSubs($this->twitch->getSubs());
       

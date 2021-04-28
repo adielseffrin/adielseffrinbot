@@ -152,7 +152,7 @@ function comandosBD($message, $write, $canal, $conn, $usuarioArray){
       case "!pizza":
         $userObj = $usuarioArray['object'];
         if(Pizza::coletaAtiva($userObj->getId()))
-          Pizza::guardaIngrediente($userObj->getId());
+          Pizza::executaAcao($userObj);
       break;
     }
   }elseif(count($stack) == 2){
