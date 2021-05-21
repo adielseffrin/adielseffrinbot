@@ -65,8 +65,14 @@ class AdielSeffrinBot
         });
       });
 
+      /*
+      Front
+      Lista de ingredientes
+      mudar nick
+      */
+      $tempoPizza = 65;
       Pizza::$write = $write;
-      $this->client->addPeriodicTimer(360, function () use ($write) {
+      $this->client->addPeriodicTimer($tempoPizza, function () use ($write) {
         Pizza::sorteia();
       });
 
@@ -138,6 +144,7 @@ class AdielSeffrinBot
           case "!pizza":
           case "!fome":
           case "!ranking":
+          case "!rank"
             $username = str_replace("@", "", $message['user']);
             $index = array_search($username,array_column($this->pessoasNoChat, 'user'));
             comandosBD($message, $write, $_SERVER['TWITCH_CHANNEL'], $this->conn, $this->pessoasNoChat[$index]);
@@ -181,7 +188,7 @@ class AdielSeffrinBot
             apresentar($message, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!teste":
-            //$this->atualizaListaSubs($this->twitch->getSubs());
+            $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "(Digite !pizza)");
             break;
           case "!addsub":
           case "!removesub":
