@@ -1,7 +1,6 @@
 <?php
 namespace AdielSeffrinBot\Models;
 use AdielSeffrinBot\Models\Fome;
-
 session_start();
 
 

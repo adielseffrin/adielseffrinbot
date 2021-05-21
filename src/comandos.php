@@ -1,4 +1,6 @@
 <?php
+use AdielSeffrinBot\Models\Pizza;
+use AdielSeffrinBot\Models\Usuario;
 
 function ban($message, $write, $canal)
 {
@@ -143,15 +145,22 @@ function comandosBD($message, $write, $canal, $conn, $usuarioArray){
         }
         else $write->ircPrivmsg($canal, "Sabia @" . $username . " que fome é ou pode ser um estado de espírito? (E você já jogou hoje 🤐)");
       break;
+      case "!rank":
       case "!ranking":
         $userObj = $usuarioArray['object'];
         $mensagem = $userObj->getRanking($conn);
         $write->ircPrivmsg($canal, $mensagem);
       break;
+      case "!pizza":
+        $userObj = $usuarioArray['object'];
+        if(Pizza::coletaAtiva($userObj->getId()))
+          Pizza::executaAcao($userObj);
+      break;
     }
   }elseif(count($stack) == 2){
     switch($stack[0]){
       case "!ranking":
+      case "!rank":
         $userObj = new Usuario(str_replace("@", "",$stack[1]));
         $userObj->carregarUsuario($conn);
         if($userObj->getId() > 0){
