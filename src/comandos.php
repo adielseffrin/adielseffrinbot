@@ -1,4 +1,6 @@
 <?php
+use AdielSeffrinBot\Models\Pizza;
+use AdielSeffrinBot\Models\Usuario;
 
 function ban($message, $write, $canal)
 {
@@ -143,15 +145,22 @@ function comandosBD($message, $write, $canal, $conn, $usuarioArray){
         }
         else $write->ircPrivmsg($canal, "Sabia @" . $username . " que fome é ou pode ser um estado de espírito? (E você já jogou hoje 🤐)");
       break;
+      case "!rank":
       case "!ranking":
         $userObj = $usuarioArray['object'];
         $mensagem = $userObj->getRanking($conn);
         $write->ircPrivmsg($canal, $mensagem);
       break;
+      case "!pizza":
+        $userObj = $usuarioArray['object'];
+        if(Pizza::coletaAtiva($userObj->getId()))
+          Pizza::executaAcao($userObj);
+      break;
     }
   }elseif(count($stack) == 2){
     switch($stack[0]){
       case "!ranking":
+      case "!rank":
         $userObj = new Usuario(str_replace("@", "",$stack[1]));
         $userObj->carregarUsuario($conn);
         if($userObj->getId() > 0){
@@ -246,37 +255,4 @@ function prime($write, $canal)
 {
   $text = "Você sabia que é possível vincular a sua conta Amazon Prime com a Twitch e ter uma inscrição de graça(!!) por mês para ajudar o seu canal favorito, ou até esse aqui? Confira abaixo no painel 'Prime' o passo a passo de como fazer!";
   $write->ircPrivmsg($canal, $text);
-}
-
-function testSocket($connector){
-  echo "############### TO AQUI ###############";
-  $connector->connect('127.0.0.1:7181')->then(function (React\Socket\ConnectionInterface $connection)  {
-    //$connection->pipe(new React\Stream\WritableResourceStream(STDOUT, $loop));
-    $connection->write("Hello World!\n");
-});
-}
-
-function overlay(){
-  $url = "http://127.0.0.1:3333";
-  $data = array('acao'=>'teste');
-  httpPost($url,$data);
-}
-
-function httpPost($url, $data)
-{
-    $curl = curl_init($url);
-    curl_setopt($curl, CURLOPT_POST, true);
-    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($curl);
-    curl_close($curl);
-    return $response;
-}
-
-function errou($message, $write, $canal)
-{
-  $file = 'errou.txt';
-  //$current = file_get_contents($file);
-  $current = "Testeeee\n";
-  file_put_contents($file, $current, FILE_APPEND);
 }

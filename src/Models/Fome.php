@@ -1,10 +1,11 @@
 <?php 
+namespace AdielSeffrinBot\Models;
 
 class Fome{
     
   public function quantidadeJogadaHoje($id, $conn){
 
-    $stmt = $conn->prepare('SELECT count(id_usuario) AS total FROM tentativas_fome WHERE id_usuario = :id_usuario AND data_tentativa = curdate()');
+    $stmt = $conn->prepare('SELECT count(id_usuario) AS total FROM tentativas_fome WHERE id_usuario = :id_usuario AND data_tentativa = curdate() AND receita = 0');
     $stmt->execute(array(':id_usuario'=>$id));
     $result = $stmt->fetch();
     return $result['total']; 

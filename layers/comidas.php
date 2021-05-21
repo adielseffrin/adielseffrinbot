@@ -16,28 +16,32 @@
     // laço onde acontece a vida útil
     while (true) {
 
-        $result = @file_get_contents('../dados_ranking.json');
+        $result = @file_get_contents('../dados_comida.json');
         $dados = json_decode($result, true);
         if (empty($dados)) $dados = array(); // se a dados estiver nula
-        $data = isset($dados[3]["time"]) ? $dados[3]["time"] : null;
+        
+        $data = isset($dados["time"]) ? $dados["time"] : null;
+        $imagem = isset($dados["url_imagem"]) ? $dados["url_imagem"] : null;
         $interval = 0;
         $executar = false;
-        
         if($data != null){
             if($ultimaExibicao == null){
                 $ultimaExibicao = date_create($data);
                 $executar = true;
             }else{
-                $interval = date_diff($ultimaExibicao, date_create($data))->format('%i');
+                  $interval = date_diff($ultimaExibicao, date_create($data))->format('%i');
                 if($interval >= 1){
+ 
                     $ultimaExibicao = date_create($data);
                     $executar = true;
                 }
             }
         }
-        // montando a string de teste que compara alterações de dados
-        $test = json_encode($data);
+        $imagem = "./images/comida/queijo.svg";
         
+        $dados["temImagem"] = file_exists($imagem);
+
+ 
         if ($executar) {
             $executar = false;
             // adicionado a response as informações

@@ -1,4 +1,5 @@
 <?php
+namespace AdielSeffrinBot\Models;
 
 class Twitter
 {
@@ -11,13 +12,13 @@ class Twitter
 
   private $ultimoTweet;
 
-  public function __construct($keys)
+  public function __construct()
   {
-    $this->api_key = $keys['TWITTER_API_KEY'];
-    $this->secret_key = $keys['TWITTER_SECRET_KEY'];
-    $this->access_token = $keys['TWITTER_ACCESS_TOKEN'];
-    $this->secret_token = $keys['TWITTER_SECRET_TOKEN'];
-    $this->bearer_key = $keys['TWITTER_BEARER_TOKEN'];
+    $this->api_key = $_SERVER['TWITTER_API_KEY'];
+    $this->secret_key = $_SERVER['TWITTER_SECRET_KEY'];
+    $this->access_token = $_SERVER['TWITTER_ACCESS_TOKEN'];
+    $this->secret_token = $_SERVER['TWITTER_SECRET_TOKEN'];
+    $this->bearer_key = $_SERVER['TWITTER_BEARER_TOKEN'];
 
     $this->ultimoTweet = $this->getUltimoTweet();
     
