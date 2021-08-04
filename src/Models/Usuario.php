@@ -41,7 +41,6 @@ class Usuario{
       $stmt = $conn->prepare('SELECT id, sub FROM usuarios WHERE nick = :nick');
       $stmt->execute(array(':nick'=>$this->nick));
       $result = $stmt->fetch();
-      
       if(!empty($result)){
         $this->id = $result['id'];
         $this->sub = $result['sub'];
@@ -110,7 +109,7 @@ class Usuario{
     }
 
     public function getRanking($conn){
-      if(empty($ranking)){
+      if(empty(Usuario::$ranking)){
         $mensagem = "Olha o ranking dos esfomeados! ";
         $dadosArray = array();
         $c = 1;
@@ -132,7 +131,6 @@ class Usuario{
               $mensagem .= $result[$i]['posicao']."- ".$result[$i]['nick']." com ".$result[$i]['pontos']." pontos. ";
               array_push($dadosArray, array('posicao'=>$result[$i]['posicao'], 'nick' => $result[$i]['nick'], 'pontos' => $result[$i]['pontos']));
             }
-            
             $index = array_search($this->id,array_column($result, 'id_usuario'));
             if(!!$index){
               if($result[$index]['posicao'] <= 3){
@@ -161,9 +159,12 @@ class Usuario{
               }
             }
             if($executar){
-              array_push($dadosArray,array('time' => $data));
+              $header = array('time' => $data, 'type' => 'ranking');
+              $mensagemParaTela = array('header' => $header, 'data' => $dadosArray);
+              //array_push($dadosArray,array('time' => $data));
               $file = 'dados_ranking.json';
               file_put_contents($file, json_encode($dadosArray));
+              file_put_contents('dados_tela.json', json_encode($mensagemParaTela));
             }else{
               $mensagem .= "Ainda falta ".(60-$segundos)." segundos para exibir em tela.";
             }
@@ -175,6 +176,21 @@ class Usuario{
         }
       }
       return $mensagem; 
+    }
+
+    public function rename($conn, $newNick){
+      $status = false;
+      try{
+        $conn->beginTransaction();
+        $stmt = $conn->prepare('UPDATE usuarios SET nick = :nick WHERE id = :id');
+        $stmt->execute(array(':id'=>$this->id, ':nick'=>$newNick));
+        $conn->commit();
+        $status = true;
+      }catch(PDOExecption $e) {
+        $conn->rollback();
+        print "Error!: " . $e->getMessage() . "</br>";
+      } 
+      return $status;
     }
 
 

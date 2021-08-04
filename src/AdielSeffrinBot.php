@@ -70,7 +70,7 @@ class AdielSeffrinBot
       Lista de ingredientes
       mudar nick
       */
-      $tempoPizza = 65;
+      $tempoPizza = 437;
       Pizza::$write = $write;
       $this->client->addPeriodicTimer($tempoPizza, function () use ($write) {
         Pizza::sorteia();
@@ -142,9 +142,16 @@ class AdielSeffrinBot
           //   $this->debugando->tratarComando($message, $write, $_SERVER['TWITCH_CHANNEL']);
           //   break;
           case "!pizza":
+          case "!🍕":
           case "!fome":
           case "!ranking":
-          case "!rank"
+          case "!rank":
+          case "!ingredientes":
+          case "!inv":
+          case "!inventario":
+          case "!inventário":
+          case "!🛍":
+          case "!bag":
             $username = str_replace("@", "", $message['user']);
             $index = array_search($username,array_column($this->pessoasNoChat, 'user'));
             comandosBD($message, $write, $_SERVER['TWITCH_CHANNEL'], $this->conn, $this->pessoasNoChat[$index]);
@@ -198,6 +205,15 @@ class AdielSeffrinBot
               comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL'], $this->conn, $this->pessoasNoChat[$index]);
             }
             break;
+          case "!sechama":
+          case "!renomear":
+            if(!empty($stack[1]) && !empty($stack[2])){
+              $oldNick = $stack[1];
+              $newNick = $stack[2];
+              $index = $this->verificaUserNoChat($oldNick, $this->conn);
+              comandosPvt($message, null, $write, $_SERVER['TWITCH_CHANNEL'], $this->conn,  $this->pessoasNoChat[$index]);
+            }
+            break;
         };
       }
     }
@@ -245,7 +261,9 @@ class AdielSeffrinBot
       "Ei @" . $username . " a chefia sabe que você está em reunião e aqui ao mesmo tempo?",
       "Ih alá, @" . $username .", voltou e nem avisou o chat 😋",
     ];
-
+//TODO Verificar erro
+// PHP Notice:  Undefined index: data in /home/adielseffrin/adielseffrinbot/src/AdielSeffrinBot.php on line 265
+// PHP Warning:  Invalid argument supplied for foreach() in /home/adielseffrin/adielseffrinbot/src/AdielSeffrinBot.php on line 265
     if($tipoAusencia === 'lurk'){
       return $mensagensLurk[rand(0,count($mensagensLurk)-1)];
     }else{
@@ -259,21 +277,22 @@ class AdielSeffrinBot
       array_push($subsNames,$sub['user_login']);
     }
     $parametros = implode(',', array_fill(0, count($subsNames), '?'));
-    try{
-      $this->conn->beginTransaction();
-      
-      $stmt = $this->conn->prepare('UPDATE usuarios SET sub = 0');
-      $stmt->execute();
-      
-      $stmt = $this->conn->prepare("UPDATE usuarios SET sub = 1 WHERE nick IN ({$parametros})");
-      $stmt->execute($subsNames);
-      
-      $this->conn->commit();
-    }catch(PDOExecption $e) {
-      $this->conn->rollback();
-      print "Error!: " . $e->getMessage() . "</br>";
-    } 
-  
+    if($parametros != ""){
+      try{
+        $this->conn->beginTransaction();
+        
+        $stmt = $this->conn->prepare('UPDATE usuarios SET sub = 0');
+        $stmt->execute();
+        
+        $stmt = $this->conn->prepare("UPDATE usuarios SET sub = 1 WHERE nick IN ({$parametros})");
+        $stmt->execute($subsNames);
+        
+        $this->conn->commit();
+      }catch(PDOExecption $e) {
+        $this->conn->rollback();
+        print "Error!: " . $e->getMessage() . "</br>";
+      } 
+    }
   }
 
 }

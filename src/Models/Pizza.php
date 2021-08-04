@@ -133,10 +133,20 @@ class Pizza{
         }
     }
 
+    public static function listarIngredientes($objUser){
+        $stmt = Pizza::$conn->prepare(" select nick, descricao, quantidade from ingredientes_usuario as iu inner join ingredientes as i on i.id = iu.id_ingrediente inner join usuarios as u on iu.id_usuario = u.id where u.id = :id_usuario;");
+        $stmt->execute(array(':id_usuario'=>$objUser->getId()));
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $lista = [];
+        foreach($result as $key => $val){
+            array_push($lista, "{$val['descricao']}[{$val['quantidade']}]");
+          }
+        $mensagem = "Ei @{$objUser->getNick()}! Você tem os seguintes ingredientes guardados: ".implode(" | ",$lista);
+        Pizza::$write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], $mensagem);
+    }
+
     public static function jogar($objUser){
         $pontos = mt_rand (5, 9) + mt_rand (0, 99)/100;
-        //var_dump($pontos);
-        //$pontos = 0;
         $stmt = Pizza::$conn->prepare('INSERT INTO tentativas_fome (id_usuario, pontos, receita) VALUES (:id_usuario, :pontos, 1)');
         $stmt->execute(array(':id_usuario'=>$objUser->getId(), ':pontos' => $pontos));  
         return $pontos;  
@@ -152,6 +162,10 @@ class Pizza{
         if(Pizza::$ingrediente !== null){
             $text = Pizza::$ingrediente["mensagem"];
             file_put_contents($file, json_encode(array("comida" => Pizza::$ingrediente["descricao"],"url_imagem" => Pizza::$ingrediente["url_imagem"], "time" => date('Y-m-d H:i:s'))));
+            $data = array("comida" => Pizza::$ingrediente["descricao"],"url_imagem" => Pizza::$ingrediente["url_imagem"]);
+            $header = array("time" => date('Y-m-d H:i:s'), 'type'=> 'pizza');
+            $mensagem = array('header' => $header, 'data' => $data);
+            file_put_contents('dados_tela.json', json_encode($mensagem));
         }
         else
             $text = "Uma nova receita precisa ser feita! Será que você tem o que é preciso para fazer uma pizza de ".Pizza::$receita["descricao"]."?";
