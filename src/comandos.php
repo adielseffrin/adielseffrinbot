@@ -152,10 +152,19 @@ function comandosBD($message, $write, $canal, $conn, $usuarioArray){
         $write->ircPrivmsg($canal, $mensagem);
       break;
       case "!pizza":
+      case "!🍕":
         $userObj = $usuarioArray['object'];
         if(Pizza::coletaAtiva($userObj->getId()))
           Pizza::executaAcao($userObj);
       break;
+      case "!inv":
+      case "!inventario":
+      case "!inventário":
+      case "!🛍":
+      case "!bag":
+        $userObj = $usuarioArray['object'];
+        Pizza::listarIngredientes($userObj);
+        break;
     }
   }elseif(count($stack) == 2){
     switch($stack[0]){
@@ -199,7 +208,6 @@ function comandosPvt($message, $twitter, $write, $canal, $conn = null, $usuarioA
       case "!tweetapramim":
         unset($stack[0]);
         $response = $twitter->Tweetar(implode(" ",$stack) . " (Enviado por adielseffrinbot - lá da twitch!)");
-        //var_dump($response);
         $write->ircPrivmsg($canal, "Ei @$username, tá postado!");
         break;
       case "!atualizart":
@@ -215,6 +223,12 @@ function comandosPvt($message, $twitter, $write, $canal, $conn = null, $usuarioA
         $userObj->removesub($conn);
         $write->ircPrivmsg($canal, "Ei @adielseffrin, @{$userObj->getNick()} nos deixou 😥");
       break;
+      case "!sechama":
+      case "!renomear":
+        $userObj = $usuarioArray['object'];
+        if($userObj->rename($conn, $stack[2]))
+          $write->ircPrivmsg($canal, "Ei @adielseffrin, {$userObj->getNick()} agora é @{$stack[2]}");
+        break;
     }
 
   }

@@ -15,5 +15,7 @@ composer.phar
 # misc
 /Task/Database.class.php
 dados_ranking.json
+dados_comida.json
+dados_tela.json
 
 # End of https://www.toptal.com/developers/gitignore/api/dotenv,composer

@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const conteudo = document.querySelector('.content');
 
     if(typeof(EventSource) !== "undefined") {
-        let source = new EventSource("http://127.0.0.1:8089/comidas.php", {
+        let source = new EventSource("http://127.0.0.1:8088/tela.php", {
             withCredentials: false // adicionando suporte a cors
         });
 
@@ -22,6 +22,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 img.src = dados.url_imagem;
                 img.className = 'comida element-animation';
                 conteudo.appendChild(img);
+                var rn = (Math.floor(Math.random()*10)%4)+1;
+                var audio = new Audio(`./sounds/pizza${rn}.mp3`);
+                audio.play();
                 setTimeout(()=> {
                     conteudo.innerHTML = ''; 
                 },7500)

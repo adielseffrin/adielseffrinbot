@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function() {
     //document.querySelector('.ranking').style.visibility = "hidden";
 
     if(typeof(EventSource) !== "undefined") {
-        let source = new EventSource("http://127.0.0.1:8088/flush.php", {
+        let source = new EventSource("http://127.0.0.1:8088/comida.php", {
             withCredentials: false // adicionando suporte a cors
         });
         

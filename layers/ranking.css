@@ -37,7 +37,8 @@
     position: relative;
     width: 800px;
     background-color: #191622;
-    
+    visibility: hidden
+    ;
   }
   
   .ranking__item {
