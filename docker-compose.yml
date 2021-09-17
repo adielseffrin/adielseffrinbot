@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  app:
+    build: .
+    depends_on:
+      - mariadb
+    restart: unless-stopped
+    environment:
+      APP_ENV: dev
+      DATABASE_DRIVER: mysql
+      DATABASE_NAME: basedobot
+      DATABASE_HOST: mariadb
+      DATABASE_PORT: 3306
+      DATABASE_USER: root
+      DATABASE_PASSWORD:
+  mariadb:
+    image: mariadb:10.5.12
+    restart: unless-stopped
+    environment:
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
+      MARIADB_DATABASE: "basedobot"
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+volumes:
+  db-data:
