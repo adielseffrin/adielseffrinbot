@@ -13,6 +13,10 @@ services:
       DATABASE_PORT: 3306
       DATABASE_USER: root
       DATABASE_PASSWORD:
+    volumes:
+      - ./src:/app/src
+      - ./layers:/app/layers
+      - ./Task:/app/Task
   mariadb:
     image: mariadb:10.5.12
     restart: unless-stopped
