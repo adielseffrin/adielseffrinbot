@@ -1,0 +1,9 @@
+Dockerfile
+docker-compose.yml
+Makefile
+schema.sql
+.gitignore
+*.csv
+tmp
+.git
+.github
