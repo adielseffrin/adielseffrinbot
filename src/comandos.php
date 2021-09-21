@@ -229,6 +229,9 @@ function comandosPvt($message, $twitter, $write, $canal, $conn = null, $usuarioA
         if($userObj->rename($conn, $stack[2]))
           $write->ircPrivmsg($canal, "Ei @adielseffrin, {$userObj->getNick()} agora é @{$stack[2]}");
         break;
+      case "!surpresa":
+        Pizza::sorteiaIngrediente(true);
+        break;  
     }
 
   }

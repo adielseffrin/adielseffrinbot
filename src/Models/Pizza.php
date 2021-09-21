@@ -1,8 +1,10 @@
 <?php
+use AdielSeffrinBot\Models\ConexaoBD;
+
 namespace AdielSeffrinBot\Models;
 
 class Pizza{
-    public static $conn;
+    //public static $conn;
     public static $ingrediente;
     public static $ingredientes;
     public static $id_ingredientes;
@@ -12,9 +14,20 @@ class Pizza{
     public static $write;
     private static $rodada = 0;
     private static $trigger = 0;
+    private static $listaDeIngredientes = [];
+
+    private static function listaDeIngredientes(){
+        if(empty(Pizza::$listaDeIngredientes)){
+            $stmt = ConexaoBD::getInstance()->prepare("SELECT * FROM ingredientes;");
+            $stmt->execute();
+            return $stmt->fetchAll();
+        }else{
+            return Pizza::$listaDeIngredientes;
+        }
+        var_dump(Pizza::$listaDeIngredientes);
+    }
 
     public static function sorteia(){
-        echo "Rodada: ".Pizza::$rodada." --- Trigger: ".Pizza::$trigger.PHP_EOL;
         if(Pizza::$trigger == 0) Pizza::$trigger = mt_rand(1, 6);
         $condicao = Pizza::$rodada++ != Pizza::$trigger;
 
@@ -25,12 +38,18 @@ class Pizza{
             Pizza::$rodada = 0;
             Pizza::sorteiaReceita();
         }
+        echo PHP_EOL."Rodada: ".Pizza::$rodada." --- Trigger: ".Pizza::$trigger.PHP_EOL;
     }
 
-    public static function sorteiaIngrediente(){
-        $stmt = Pizza::$conn->prepare("SELECT * FROM ingredientes order by rand() limit 1;");
-        $stmt->execute();
-        $result = $stmt->fetch();
+    public static function sorteiaIngrediente($surpresa = false){
+        // $stmt = Pizza::$conn->prepare("SELECT * FROM ingredientes order by rand() limit 1;");
+        // $stmt->execute();
+        // $result = $stmt->fetch();
+        if($surpresa)
+            $numero = 10;
+        else
+            $numero = rand(0,10);
+        $result = Pizza::listaDeIngredientes()[$numero];
         Pizza::$ingrediente = $result;
         Pizza::$ingredientes = null;
         Pizza::$id_ingredientes = null;
@@ -42,11 +61,11 @@ class Pizza{
     }
 
     public static function sorteiaReceita(){
-        $stmt = Pizza::$conn->prepare("SELECT id FROM pizzas ORDER by rand() LIMIT 1");
+        $stmt = ConexaoBD::getInstance()->prepare("SELECT id FROM pizzas ORDER by rand() LIMIT 1");
         $stmt->execute();
         $result = $stmt->fetch();
         $pid = $result["id"];
-        $stmt = Pizza::$conn->prepare("
+        $stmt = ConexaoBD::getInstance()->prepare("
             SELECT p.descricao AS pizza, i.descricao AS ingrediente, ip.id_ingrediente FROM pizzas AS p 
             INNER JOIN ingredientes_pizzas AS ip 
             ON p.id = ip.id_pizza
@@ -94,20 +113,41 @@ class Pizza{
 
     public static function guardaIngrediente($objUser){
         array_push(Pizza::$coletores, $objUser->getId());
-        $stmt = Pizza::$conn->prepare('SELECT id, quantidade FROM ingredientes_usuario WHERE id_usuario = :id_usuario AND id_ingrediente = :id_ingrediente');
-        $stmt->execute(array(':id_usuario'=>$objUser->getId(), ':id_ingrediente' => Pizza::$ingrediente['id']));
+        $stmt = ConexaoBD::getInstance()->prepare('SELECT id, quantidade FROM ingredientes_usuario WHERE id_usuario = :id_usuario AND id_ingrediente = :id_ingrediente');
+        $ingredienteId = Pizza::$ingrediente['id'];
+        $ingredienteDescricao = Pizza::$ingrediente['descricao'];
+        
+        if(Pizza::$ingrediente['id'] == 11){
+            $numero = rand(0,9);
+            $result = Pizza::listaDeIngredientes()[$numero];
+            $ingredienteId = $result['id'];
+            $ingredienteDescricao = $result['descricao'];
+        }
+        
+        $stmt->execute(array(':id_usuario'=>$objUser->getId(), ':id_ingrediente' => $ingredienteId));
         $result = $stmt->fetch();
-        if($result && $result['quantidade'] >= 0){
+        $quantidadeSelector = rand(0,100);
+        if($quantidadeSelector > 95)
+            $quantidadeColetada = 4;
+        elseif($quantidadeSelector > 85)
+            $quantidadeColetada = 3;
+        elseif($quantidadeSelector > 70)
+            $quantidadeColetada = 2;
+        else
+            $quantidadeColetada = 1;
+
+    if($result && $result['quantidade'] >= 0){
             $quantidade = $result['quantidade'];
             $id_ingrediente_usuario = $result['id'];
-            $stmt = Pizza::$conn->prepare('UPDATE ingredientes_usuario SET quantidade  = :quantidade WHERE id = :id_ingrediente_usuario');
-            $stmt->execute(array(':quantidade'=>$quantidade+1, ':id_ingrediente_usuario' => $id_ingrediente_usuario));    
+            $stmt = ConexaoBD::getInstance()->prepare('UPDATE ingredientes_usuario SET quantidade  = :quantidade WHERE id = :id_ingrediente_usuario');
+            $stmt->execute(array(':quantidade'=>$quantidade+$quantidadeColetada, ':id_ingrediente_usuario' => $id_ingrediente_usuario));    
         }else{
-            $stmt = Pizza::$conn->prepare('INSERT INTO ingredientes_usuario (id_usuario, id_ingrediente, quantidade) VALUES (:id_usuario,:id_ingrediente, :quantidade)');
-            $stmt->execute(array(':id_usuario'=>$objUser->getId(), ':id_ingrediente' => Pizza::$ingrediente['id'], ':quantidade' => 1));
+            $stmt = ConexaoBD::getInstance()->prepare('INSERT INTO ingredientes_usuario (id_usuario, id_ingrediente, quantidade) VALUES (:id_usuario,:id_ingrediente, :quantidade)');
+            $stmt->execute(array(':id_usuario'=>$objUser->getId(), ':id_ingrediente' => $ingredienteId, ':quantidade' => $quantidadeColetada));
         }
-
-        $text = "@".$objUser->getNick()." coletou ".Pizza::$ingrediente['descricao'] ."!";
+        $plural = '';
+        if($quantidadeColetada > 1) $plural='s';
+        $text = "@".$objUser->getNick()." coletou {$quantidadeColetada} {$ingredienteDescricao}{$plural}!";
         Pizza::$write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], $text);
     }
 
@@ -116,13 +156,13 @@ class Pizza{
         //validar ingredientes
         $ingredientes = Pizza::$ingredientes;
         $ids = implode(',',Pizza::$id_ingredientes);
-        $stmt = Pizza::$conn->prepare("SELECT MIN(quantidade) as total FROM ingredientes_usuario WHERE id_usuario = :id_usuario and id_ingrediente IN ({$ids})");
+        $stmt = ConexaoBD::getInstance()->prepare("SELECT MIN(quantidade) as total FROM ingredientes_usuario WHERE id_usuario = :id_usuario and id_ingrediente IN ({$ids})");
         $stmt->execute(array(':id_usuario'=>$objUser->getId()));
         
         $result = $stmt->fetch();
         $podeFazer = $result['total'] > 0;
         if($podeFazer){
-            $stmt = Pizza::$conn->prepare("update ingredientes_usuario set quantidade = quantidade - 1 where id_usuario = :id_usuario and id_ingrediente in ({$ids});");
+            $stmt = ConexaoBD::getInstance()->prepare("update ingredientes_usuario set quantidade = quantidade - 1 where id_usuario = :id_usuario and id_ingrediente in ({$ids});");
             $stmt->execute(array(':id_usuario'=>$objUser->getId()));
             $pontos = Pizza::jogar($objUser);
             $text = "@".$objUser->getNick()." criou uma pizza de ".Pizza::$receita['descricao'] ." deliciosa! Ganhou $pontos pontos!!";
@@ -134,7 +174,7 @@ class Pizza{
     }
 
     public static function listarIngredientes($objUser){
-        $stmt = Pizza::$conn->prepare(" select nick, descricao, quantidade from ingredientes_usuario as iu inner join ingredientes as i on i.id = iu.id_ingrediente inner join usuarios as u on iu.id_usuario = u.id where u.id = :id_usuario;");
+        $stmt = ConexaoBD::getInstance()->prepare(" select nick, descricao, quantidade from ingredientes_usuario as iu inner join ingredientes as i on i.id = iu.id_ingrediente inner join usuarios as u on iu.id_usuario = u.id where u.id = :id_usuario;");
         $stmt->execute(array(':id_usuario'=>$objUser->getId()));
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         $lista = [];
@@ -147,7 +187,7 @@ class Pizza{
 
     public static function jogar($objUser){
         $pontos = mt_rand (5, 9) + mt_rand (0, 99)/100;
-        $stmt = Pizza::$conn->prepare('INSERT INTO tentativas_fome (id_usuario, pontos, receita) VALUES (:id_usuario, :pontos, 1)');
+        $stmt = ConexaoBD::getInstance()->prepare('INSERT INTO tentativas_fome (id_usuario, pontos, receita) VALUES (:id_usuario, :pontos, 1)');
         $stmt->execute(array(':id_usuario'=>$objUser->getId(), ':pontos' => $pontos));  
         return $pontos;  
       }
