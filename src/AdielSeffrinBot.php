@@ -26,16 +26,13 @@ class AdielSeffrinBot
   private $twitch;
   private $write;
   private $debugando;
-  private $conn;
   private $ausenciaArray;
   private $pessoasNoChat;
 
+  public $BD;
+
   public function __construct()
   {
-    $BD = new ConexaoBD();
-    $BD->connect();
-    $this->conn = $BD->getConn();
-    Pizza::$conn = $this->conn;
     $this->connection = new \Phergie\Irc\Connection();
     $this->connection
       ->setServerHostname('irc.chat.twitch.tv')
@@ -70,7 +67,7 @@ class AdielSeffrinBot
       Lista de ingredientes
       mudar nick
       */
-      $tempoPizza = 437;
+      $tempoPizza = 302;
       Pizza::$write = $write;
       $this->client->addPeriodicTimer($tempoPizza, function () use ($write) {
         Pizza::sorteia();
@@ -105,9 +102,9 @@ class AdielSeffrinBot
     if ($message['command'] == 'PRIVMSG') {
       $comando = null;
       $stack = null;
-      
       $username = str_replace("@", "", $message['user']);
-      $this->verificaUserNoChat($username, $this->conn);
+     
+      $this->verificaUserNoChat($username);
 
       if (strripos(strtolower($message['params']['text']), "!") === 0) {
         $mesagemLower = strtolower($message['params']['text']);
@@ -154,7 +151,7 @@ class AdielSeffrinBot
           case "!bag":
             $username = str_replace("@", "", $message['user']);
             $index = array_search($username,array_column($this->pessoasNoChat, 'user'));
-            comandosBD($message, $write, $_SERVER['TWITCH_CHANNEL'], $this->conn, $this->pessoasNoChat[$index]);
+            comandosBD($message, $write, $_SERVER['TWITCH_CHANNEL'], $this->pessoasNoChat[$index]);
             break;
           case "!reuniao":
           case "!reunião":
@@ -188,6 +185,7 @@ class AdielSeffrinBot
           case "!liveon":
           case "!atualizart":
           case "!tweetapramim":
+          case "!surpresa":
             comandosPvt($message,$this->twitter, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!apresentação":
@@ -201,8 +199,8 @@ class AdielSeffrinBot
           case "!removesub":
             if(!empty($stack[1])){
               $username = $stack[1];
-              $index = $this->verificaUserNoChat($username, $this->conn);
-              comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL'], $this->conn, $this->pessoasNoChat[$index]);
+              $index = $this->verificaUserNoChat($username);
+              comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL'], $this->pessoasNoChat[$index]);
             }
             break;
           case "!sechama":
@@ -210,8 +208,8 @@ class AdielSeffrinBot
             if(!empty($stack[1]) && !empty($stack[2])){
               $oldNick = $stack[1];
               $newNick = $stack[2];
-              $index = $this->verificaUserNoChat($oldNick, $this->conn);
-              comandosPvt($message, null, $write, $_SERVER['TWITCH_CHANNEL'], $this->conn,  $this->pessoasNoChat[$index]);
+              $index = $this->verificaUserNoChat($oldNick);
+              comandosPvt($message, null, $write, $_SERVER['TWITCH_CHANNEL'],  $this->pessoasNoChat[$index]);
             }
             break;
         };
@@ -219,14 +217,17 @@ class AdielSeffrinBot
     }
   }
 
-  public function verificaUserNoChat($username, $conn){
+  public function verificaUserNoChat($username){
     $index = array_search($username,array_column($this->pessoasNoChat, 'user'));
     if($index === false){
       $user = new Usuario($username);
-      if(!$user->verificarExistenciaUsuario($conn)){
-        $user->cadastrarUsuario($conn);
+      $dados_twitch = $this->twitch->getUserDetailsByLogin($username);
+      if(!$user->verificarExistenciaUsuario()){
+        $user->cadastrarUsuario();
       }else{
-        $user->carregarUsuario($conn);
+        $user->carregarUsuario();
+        $user->setTwitchId($dados_twitch['data'][0]['id']);
+        $user->atualizaTwitchId();
       }
       array_push($this->pessoasNoChat,array('user' => $username, 'object'=> $user));
       $index = array_search($username,array_column($this->pessoasNoChat, 'user'));
@@ -272,27 +273,35 @@ class AdielSeffrinBot
   }
 
   private function atualizaListaSubs($subs){
+    echo PHP_EOL."### Atualizando lista de subs... ###".PHP_EOL;
     $subsNames = array();
-    foreach($subs['data'] as $sub){
-      array_push($subsNames,$sub['user_login']);
-    }
-    $parametros = implode(',', array_fill(0, count($subsNames), '?'));
-    if($parametros != ""){
-      try{
-        $this->conn->beginTransaction();
+    if(isset($subs['data'])){
+      foreach($subs['data'] as $sub){
         
-        $stmt = $this->conn->prepare('UPDATE usuarios SET sub = 0');
+        array_push($subsNames,$sub['user_login']);
+      }
+     
+    }
+    
+    $parametros = implode(PHP_EOL, $subsNames);
+    if($parametros != ""){
+      echo PHP_EOL."### Subs encontrados:".PHP_EOL.$parametros.PHP_EOL."Fim da lista de subs ###".PHP_EOL;
+      try{
+        ConexaoBD::getInstance()->beginTransaction();
+        $this->hasTransactionOpened = 'atualizaListaSubs';
+        $stmt = ConexaoBD::getInstance()->prepare('UPDATE usuarios SET sub = 0');
         $stmt->execute();
         
-        $stmt = $this->conn->prepare("UPDATE usuarios SET sub = 1 WHERE nick IN ({$parametros})");
+        $stmt = ConexaoBD::getInstance()->prepare("UPDATE usuarios SET sub = 1 WHERE nick IN ({$parametros})");
         $stmt->execute($subsNames);
         
-        $this->conn->commit();
+        ConexaoBD::getInstance()->commit();
       }catch(PDOExecption $e) {
-        $this->conn->rollback();
+        ConexaoBD::getInstance()->rollback();
         print "Error!: " . $e->getMessage() . "</br>";
       } 
     }
+    echo PHP_EOL."### Rotina de atualização de subs finalizada ###".PHP_EOL;
   }
 
 }

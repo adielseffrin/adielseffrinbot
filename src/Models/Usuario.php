@@ -9,6 +9,7 @@ class Usuario{
     private $id;
     private $fome;
     private $sub;
+    private $twitchId;
 
     static $ranking = array();
     static $ultimaExibicao = null;
@@ -18,7 +19,11 @@ class Usuario{
         $this->id = 0;
         $this->nick = $nick;
         $this->fome = new Fome();
-        
+
+    }
+
+    public function setTwitchId($tid){
+      $this->twitchId = $tid;
     }
 
     public function getNick(){
@@ -29,76 +34,91 @@ class Usuario{
       return $this->id;
     }
 
-    public function verificarExistenciaUsuario($conn){
-        $stmt = $conn->prepare('SELECT id FROM usuarios WHERE nick = :nick');
+    public function verificarExistenciaUsuario(){
+        $stmt = ConexaoBD::getInstance()->prepare('SELECT id FROM usuarios WHERE nick = :nick');
         $stmt->execute(array(':nick'=>$this->nick));
         $result = $stmt->fetch();
         
         return !empty($result); 
     }
 
-    public function carregarUsuario($conn){
-      $stmt = $conn->prepare('SELECT id, sub FROM usuarios WHERE nick = :nick');
+    public function carregarUsuario(){
+      $stmt = ConexaoBD::getInstance()->prepare('SELECT id, sub, twitch_id FROM usuarios WHERE nick = :nick');
       $stmt->execute(array(':nick'=>$this->nick));
       $result = $stmt->fetch();
       if(!empty($result)){
         $this->id = $result['id'];
         $this->sub = $result['sub'];
+        $this->twitchId = $result['twitch_id'];
       }; 
   }
 
-    public function cadastrarUsuario($conn){
+    public function cadastrarUsuario(){
       $lastId = 0;
       try{
-        $conn->beginTransaction();
-        $stmt = $conn->prepare('INSERT INTO usuarios (nick) VALUES (:nick)');
-        $stmt->execute(array(':nick'=>$this->nick));
-        $lastId = $conn->lastInsertId();
-        $conn->commit();
+        ConexaoBD::getInstance()->beginTransaction();
+        $stmt = ConexaoBD::getInstance()->prepare('INSERT INTO usuarios (nick, twitch_id) VALUES (:nick, :twitch_id)');
+        $stmt->execute(array(':nick'=>$this->nick, ':twitch_id'=>$this->twitchId));
+        $lastId = ConexaoBD::getInstance()->lastInsertId();
+        ConexaoBD::getInstance()->commit();
       }catch(PDOExecption $e) {
-        $conn->rollback();
+        ConexaoBD::getInstance()->rollback();
         print "Error!: " . $e->getMessage() . "</br>";
       } 
       $this->id = $lastId;
     }
 
-    public function podeJogar($conn){
-      return $this->fome->quantidadeJogadaHoje($this->id,$conn) <= (!!$this->sub ? 1 : 0);
-    }
-
-    public function jogar($conn){
-      return $this->fome->jogar($this->id,$conn);
-    }
-
-    public function addSub($conn){
+    public function atualizaTwitchId(){
       try{
-        $conn->beginTransaction();
-        $stmt = $conn->prepare('UPDATE usuarios SET sub = 1 WHERE id = :id');
+        ConexaoBD::getInstance()->beginTransaction();
+        $sql = "UPDATE usuarios SET twitch_id = :twitch_id WHERE id = :id";
+        $stmt = ConexaoBD::getInstance()->prepare($sql);
+       
+        $stmt->execute(array(':id'=>$this->id, ':twitch_id'=>$this->twitchId));
+        ConexaoBD::getInstance()->commit();
+      }catch(PDOExecption $e) {
+        ConexaoBD::getInstance()->rollback();
+        print "Error!: " . $e->getMessage() . "</br>";
+      } 
+    }
+
+    public function podeJogar(){
+      return $this->fome->quantidadeJogadaHoje($this->id) <= (!!$this->sub ? 1 : 0);
+    }
+
+    public function jogar(){
+      return $this->fome->jogar($this->id);
+    }
+
+    public function addSub(){
+      try{
+        ConexaoBD::getInstance()->beginTransaction();
+        $stmt = ConexaoBD::getInstance()->prepare('UPDATE usuarios SET sub = 1 WHERE id = :id');
         $stmt->execute(array(':id'=>$this->id));
         $this->sub = 1;
-        $conn->commit();
+        ConexaoBD::getInstance()->commit();
       }catch(PDOExecption $e) {
-        $conn->rollback();
+        ConexaoBD::getInstance()->rollback();
         print "Error!: " . $e->getMessage() . "</br>";
       } 
     }
 
-    public function removeSub($conn){
+    public function removeSub(){
       try{
-        $conn->beginTransaction();
-        $stmt = $conn->prepare('UPDATE usuarios SET sub = 0 WHERE id = :id');
+        ConexaoBD::getInstance()->beginTransaction();
+        $stmt = ConexaoBD::getInstance()->prepare('UPDATE usuarios SET sub = 0 WHERE id = :id');
         $stmt->execute(array(':id'=>$this->id));
         $this->sub = 0;
-        $conn->commit();
+        ConexaoBD::getInstance()->commit();
       }catch(PDOExecption $e) {
-        $conn->rollback();
+        ConexaoBD::getInstance()->rollback();
         print "Error!: " . $e->getMessage() . "</br>";
       } 
     }
 
-    public function getPosition($conn){
+    public function getPosition(){
       $data = array();
-      $stmt = $conn->prepare("select count(*)+1 as posicao, round(total,2) as pontos from (select id_usuario, sum(pontos) as total from tentativas_fome where data_tentativa between '".date('Y-m-01')."' and '".date('Y-m-t')."' group by id_usuario having total > (select sum(pontos) as tot from tentativas_fome where id_usuario = :id) order by total desc) as t;");
+      $stmt = ConexaoBD::getInstance()->prepare("select count(*)+1 as posicao, round(total,2) as pontos from (select id_usuario, sum(pontos) as total from tentativas_fome where data_tentativa between '".date('Y-m-01')."' and '".date('Y-m-t')."' group by id_usuario having total > (select sum(pontos) as tot from tentativas_fome where id_usuario = :id) order by total desc) as t;");
       $stmt->execute(array(':id'=>$this->id));
       $result = $stmt->fetch(PDO::FETCH_ASSOC);
       if(!empty($result)){
@@ -108,16 +128,16 @@ class Usuario{
       return $data;
     }
 
-    public function getRanking($conn){
+    public function getRanking(){
       if(empty(Usuario::$ranking)){
         $mensagem = "Olha o ranking dos esfomeados! ";
         $dadosArray = array();
         $c = 1;
         $pos = 0;
         try{
-          $conn->beginTransaction();
+          ConexaoBD::getInstance()->beginTransaction();
           $sql = "select 0 as posicao, u.nick as nick, t.id_usuario as id_usuario, round(sum(t.pontos),2) as pontos from tentativas_fome as t inner join usuarios as u on u.id = t.id_usuario where t.data_tentativa between '".date('Y-m-01')."' and '".date('Y-m-t')."' group by t.id_usuario  order by pontos desc;";
-          $stmt = $conn->prepare($sql);
+          $stmt = ConexaoBD::getInstance()->prepare($sql);
           $stmt->execute(array(':id'=>$this->id));
           $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
           if(empty($result)){
@@ -169,25 +189,25 @@ class Usuario{
               $mensagem .= "Ainda falta ".(60-$segundos)." segundos para exibir em tela.";
             }
           }
-          $conn->commit();
+          ConexaoBD::getInstance()->commit();
         }catch(PDOExecption $e) {
-          $conn->rollback();
+          ConexaoBD::getInstance()->rollback();
           print "Error!: " . $e->getMessage() . "</br>";
         }
       }
       return $mensagem; 
     }
 
-    public function rename($conn, $newNick){
+    public function rename($newNick){
       $status = false;
       try{
-        $conn->beginTransaction();
-        $stmt = $conn->prepare('UPDATE usuarios SET nick = :nick WHERE id = :id');
+        ConexaoBD::getInstance()->beginTransaction();
+        $stmt = ConexaoBD::getInstance()->prepare('UPDATE usuarios SET nick = :nick WHERE id = :id');
         $stmt->execute(array(':id'=>$this->id, ':nick'=>$newNick));
-        $conn->commit();
+        ConexaoBD::getInstance()->commit();
         $status = true;
       }catch(PDOExecption $e) {
-        $conn->rollback();
+        ConexaoBD::getInstance()->rollback();
         print "Error!: " . $e->getMessage() . "</br>";
       } 
       return $status;
