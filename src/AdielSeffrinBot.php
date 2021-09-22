@@ -26,7 +26,6 @@ class AdielSeffrinBot
   private $twitch;
   private $write;
   private $debugando;
-  private $conn;
   private $ausenciaArray;
   private $pessoasNoChat;
 
@@ -105,7 +104,7 @@ class AdielSeffrinBot
       $stack = null;
       $username = str_replace("@", "", $message['user']);
      
-      $this->verificaUserNoChat($username, $this->conn);
+      $this->verificaUserNoChat($username);
 
       if (strripos(strtolower($message['params']['text']), "!") === 0) {
         $mesagemLower = strtolower($message['params']['text']);
@@ -152,7 +151,7 @@ class AdielSeffrinBot
           case "!bag":
             $username = str_replace("@", "", $message['user']);
             $index = array_search($username,array_column($this->pessoasNoChat, 'user'));
-            comandosBD($message, $write, $_SERVER['TWITCH_CHANNEL'], $this->conn, $this->pessoasNoChat[$index]);
+            comandosBD($message, $write, $_SERVER['TWITCH_CHANNEL'], $this->pessoasNoChat[$index]);
             break;
           case "!reuniao":
           case "!reunião":
@@ -200,8 +199,8 @@ class AdielSeffrinBot
           case "!removesub":
             if(!empty($stack[1])){
               $username = $stack[1];
-              $index = $this->verificaUserNoChat($username, $this->conn);
-              comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL'], $this->conn, $this->pessoasNoChat[$index]);
+              $index = $this->verificaUserNoChat($username);
+              comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL'], $this->pessoasNoChat[$index]);
             }
             break;
           case "!sechama":
@@ -209,8 +208,8 @@ class AdielSeffrinBot
             if(!empty($stack[1]) && !empty($stack[2])){
               $oldNick = $stack[1];
               $newNick = $stack[2];
-              $index = $this->verificaUserNoChat($oldNick, $this->conn);
-              comandosPvt($message, null, $write, $_SERVER['TWITCH_CHANNEL'], $this->conn,  $this->pessoasNoChat[$index]);
+              $index = $this->verificaUserNoChat($oldNick);
+              comandosPvt($message, null, $write, $_SERVER['TWITCH_CHANNEL'],  $this->pessoasNoChat[$index]);
             }
             break;
         };
@@ -218,17 +217,17 @@ class AdielSeffrinBot
     }
   }
 
-  public function verificaUserNoChat($username, $conn){
+  public function verificaUserNoChat($username){
     $index = array_search($username,array_column($this->pessoasNoChat, 'user'));
     if($index === false){
       $user = new Usuario($username);
       $dados_twitch = $this->twitch->getUserDetailsByLogin($username);
       if(!$user->verificarExistenciaUsuario()){
-        $user->cadastrarUsuario($conn);
+        $user->cadastrarUsuario();
       }else{
-        $user->carregarUsuario($conn);
+        $user->carregarUsuario();
         $user->setTwitchId($dados_twitch['data'][0]['id']);
-        $user->atualizaTwitchId($conn);
+        $user->atualizaTwitchId();
       }
       array_push($this->pessoasNoChat,array('user' => $username, 'object'=> $user));
       $index = array_search($username,array_column($this->pessoasNoChat, 'user'));

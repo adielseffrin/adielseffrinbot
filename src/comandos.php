@@ -123,7 +123,7 @@ function comandos($message, $write, $canal)
   $write->ircPrivmsg($canal, "Seguindo..., ".$comandos_p2);
 }
 
-function comandosBD($message, $write, $canal, $conn, $usuarioArray){
+function comandosBD($message, $write, $canal,$usuarioArray){
   $mesagemLower = strtolower($message['params']['text']);
   $stack = explode(" ", $mesagemLower);
   $username = $message['user'];
@@ -132,8 +132,8 @@ function comandosBD($message, $write, $canal, $conn, $usuarioArray){
       case "!fome":
         $username = str_replace("@", "", $message['user']);
         $userObj = $usuarioArray['object'];
-        if($userObj->podeJogar($conn)) {
-          $pontos = $userObj->jogar($conn);
+        if($userObj->podeJogar()) {
+          $pontos = $userObj->jogar();
           if($pontos < 3)
             $write->ircPrivmsg($canal, "Ei @" . $username . " tá com pouca fome né. Seu nível de fome foi {$pontos}");
           else if($pontos < 6)
@@ -148,7 +148,7 @@ function comandosBD($message, $write, $canal, $conn, $usuarioArray){
       case "!rank":
       case "!ranking":
         $userObj = $usuarioArray['object'];
-        $mensagem = $userObj->getRanking($conn);
+        $mensagem = $userObj->getRanking();
         $write->ircPrivmsg($canal, $mensagem);
       break;
       case "!pizza":
@@ -171,9 +171,9 @@ function comandosBD($message, $write, $canal, $conn, $usuarioArray){
       case "!ranking":
       case "!rank":
         $userObj = new Usuario(str_replace("@", "",$stack[1]));
-        $userObj->carregarUsuario($conn);
+        $userObj->carregarUsuario();
         if($userObj->getId() > 0){
-          $mensagem = $userObj->getRanking($conn);
+          $mensagem = $userObj->getRanking();
           $write->ircPrivmsg($canal, $mensagem);
         }else{
           $write->ircPrivmsg($canal, "Pois olha, não achei essa pessoa aí não 😥");
@@ -192,7 +192,7 @@ function apresentar($message, $write, $canal)
   $write->ircPrivmsg($canal, $msg);
 }
 
-function comandosPvt($message, $twitter, $write, $canal, $conn = null, $usuarioArray = null)
+function comandosPvt($message, $twitter, $write, $canal, $usuarioArray = null)
 {
  
   $username = $message['user'];
@@ -215,18 +215,18 @@ function comandosPvt($message, $twitter, $write, $canal, $conn = null, $usuarioA
         break;
       case "!addsub":
         $userObj = $usuarioArray['object'];
-        $userObj->addsub($conn);
+        $userObj->addsub();
         $write->ircPrivmsg($canal, "Ei @adielseffrin, @{$userObj->getNick()} agora é um sub 🐱‍🏍!");
       break;
       case "!removesub":
         $userObj = $usuarioArray['object'];
-        $userObj->removesub($conn);
+        $userObj->removesub();
         $write->ircPrivmsg($canal, "Ei @adielseffrin, @{$userObj->getNick()} nos deixou 😥");
       break;
       case "!sechama":
       case "!renomear":
         $userObj = $usuarioArray['object'];
-        if($userObj->rename($conn, $stack[2]))
+        if($userObj->rename($stack[2]))
           $write->ircPrivmsg($canal, "Ei @adielseffrin, {$userObj->getNick()} agora é @{$stack[2]}");
         break;
       case "!surpresa":

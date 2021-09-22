@@ -42,7 +42,7 @@ class Usuario{
         return !empty($result); 
     }
 
-    public function carregarUsuario($conn){
+    public function carregarUsuario(){
       $stmt = ConexaoBD::getInstance()->prepare('SELECT id, sub, twitch_id FROM usuarios WHERE nick = :nick');
       $stmt->execute(array(':nick'=>$this->nick));
       $result = $stmt->fetch();
@@ -53,7 +53,7 @@ class Usuario{
       }; 
   }
 
-    public function cadastrarUsuario($conn){
+    public function cadastrarUsuario(){
       $lastId = 0;
       try{
         ConexaoBD::getInstance()->beginTransaction();
@@ -68,7 +68,7 @@ class Usuario{
       $this->id = $lastId;
     }
 
-    public function atualizaTwitchId($conn){
+    public function atualizaTwitchId(){
       try{
         ConexaoBD::getInstance()->beginTransaction();
         $sql = "UPDATE usuarios SET twitch_id = :twitch_id WHERE id = :id";
@@ -82,15 +82,15 @@ class Usuario{
       } 
     }
 
-    public function podeJogar($conn){
-      return $this->fome->quantidadeJogadaHoje($this->id,$conn) <= (!!$this->sub ? 1 : 0);
+    public function podeJogar(){
+      return $this->fome->quantidadeJogadaHoje($this->id) <= (!!$this->sub ? 1 : 0);
     }
 
-    public function jogar($conn){
-      return $this->fome->jogar($this->id,$conn);
+    public function jogar(){
+      return $this->fome->jogar($this->id);
     }
 
-    public function addSub($conn){
+    public function addSub(){
       try{
         ConexaoBD::getInstance()->beginTransaction();
         $stmt = ConexaoBD::getInstance()->prepare('UPDATE usuarios SET sub = 1 WHERE id = :id');
@@ -103,7 +103,7 @@ class Usuario{
       } 
     }
 
-    public function removeSub($conn){
+    public function removeSub(){
       try{
         ConexaoBD::getInstance()->beginTransaction();
         $stmt = ConexaoBD::getInstance()->prepare('UPDATE usuarios SET sub = 0 WHERE id = :id');
@@ -116,7 +116,7 @@ class Usuario{
       } 
     }
 
-    public function getPosition($conn){
+    public function getPosition(){
       $data = array();
       $stmt = ConexaoBD::getInstance()->prepare("select count(*)+1 as posicao, round(total,2) as pontos from (select id_usuario, sum(pontos) as total from tentativas_fome where data_tentativa between '".date('Y-m-01')."' and '".date('Y-m-t')."' group by id_usuario having total > (select sum(pontos) as tot from tentativas_fome where id_usuario = :id) order by total desc) as t;");
       $stmt->execute(array(':id'=>$this->id));
@@ -128,7 +128,7 @@ class Usuario{
       return $data;
     }
 
-    public function getRanking($conn){
+    public function getRanking(){
       if(empty(Usuario::$ranking)){
         $mensagem = "Olha o ranking dos esfomeados! ";
         $dadosArray = array();
@@ -198,7 +198,7 @@ class Usuario{
       return $mensagem; 
     }
 
-    public function rename($conn, $newNick){
+    public function rename($newNick){
       $status = false;
       try{
         ConexaoBD::getInstance()->beginTransaction();

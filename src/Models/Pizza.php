@@ -4,7 +4,6 @@ use AdielSeffrinBot\Models\ConexaoBD;
 namespace AdielSeffrinBot\Models;
 
 class Pizza{
-    //public static $conn;
     public static $ingrediente;
     public static $ingredientes;
     public static $id_ingredientes;
@@ -42,9 +41,6 @@ class Pizza{
     }
 
     public static function sorteiaIngrediente($surpresa = false){
-        // $stmt = Pizza::$conn->prepare("SELECT * FROM ingredientes order by rand() limit 1;");
-        // $stmt->execute();
-        // $result = $stmt->fetch();
         if($surpresa)
             $numero = 10;
         else
