@@ -83,11 +83,15 @@ class Usuario{
     }
 
     public function podeJogar(){
-      return $this->fome->quantidadeJogadaHoje($this->id) <= (!!$this->sub ? 1 : 0);
+      return $this->fome->podeJogar($this->id, $this->sub);
     }
 
     public function jogar(){
       return $this->fome->jogar($this->id);
+    }
+
+    public function addFome($quantidade){
+      return $this->fome->addFome($this->id, $quantidade);
     }
 
     public function addSub(){

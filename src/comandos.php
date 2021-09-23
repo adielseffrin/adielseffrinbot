@@ -213,6 +213,20 @@ function comandosPvt($message, $twitter, $write, $canal, $usuarioArray = null)
       case "!atualizart":
         $twitter->atualizaRT();
         break;
+      case "!fomeExtra":
+      case "!fomeextra":
+          $userObj = $usuarioArray['object'];
+          $quantidade = 1;
+          if(isset($stack[2])){
+            $quantidade = $stack[2];
+          }
+          if($userObj->addFome($quantidade)){
+            $msg = "Ei @{$userObj->getNick()}, você ganhou mais {$quantidade} !fome extra".($quantidade > 1 ? 's' : '')."!";
+            $write->ircPrivmsg($canal, $msg);
+          }else{
+            $write->ircPrivmsg($canal, "Ei @adielseffrrin, dá um conferes aqui que deu ruim 😂");
+          }
+        break;
       case "!addsub":
         $userObj = $usuarioArray['object'];
         $userObj->addsub();

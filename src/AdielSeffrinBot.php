@@ -192,8 +192,13 @@ class AdielSeffrinBot
           case "!apresentacao":
             apresentar($message, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
-          case "!teste":
-            $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "(Digite !pizza)");
+          case "!fomeextra":
+          case "!fomeExtra":
+            if(!empty($stack[1])){
+              $username = $stack[1];
+              $index = $this->verificaUserNoChat($username);
+              comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL'], $this->pessoasNoChat[$index]);
+            }
             break;
           case "!addsub":
           case "!removesub":
@@ -277,22 +282,20 @@ class AdielSeffrinBot
     $subsNames = array();
     if(isset($subs['data'])){
       foreach($subs['data'] as $sub){
-        
         array_push($subsNames,$sub['user_login']);
       }
-     
     }
     
     $parametros = implode(PHP_EOL, $subsNames);
     if($parametros != ""){
+      
       echo PHP_EOL."### Subs encontrados:".PHP_EOL.$parametros.PHP_EOL."Fim da lista de subs ###".PHP_EOL;
       try{
         ConexaoBD::getInstance()->beginTransaction();
-        $this->hasTransactionOpened = 'atualizaListaSubs';
-        $stmt = ConexaoBD::getInstance()->prepare('UPDATE usuarios SET sub = 0');
+        $stmt = ConexaoBD::getInstance()->prepare('UPDATE usuarios SET sub = 0 where id > 0');
         $stmt->execute();
-        
-        $stmt = ConexaoBD::getInstance()->prepare("UPDATE usuarios SET sub = 1 WHERE nick IN ({$parametros})");
+        $in  = str_repeat('?,', count($subsNames) - 1) . '?';
+        $stmt = ConexaoBD::getInstance()->prepare("UPDATE usuarios SET sub = 1 WHERE nick IN ($in)");
         $stmt->execute($subsNames);
         
         ConexaoBD::getInstance()->commit();

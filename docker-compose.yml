@@ -14,17 +14,16 @@ services:
       DATABASE_USER: root
       DATABASE_PASSWORD:
     volumes:
-      - ./src:/app/src
-      - ./layers:/app/layers
-      - ./Task:/app/Task
+      - .:/app
+      - /app/vendor
   mariadb:
     image: mariadb:10.5.12
     restart: unless-stopped
     environment:
-      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'true'
       MARIADB_DATABASE: "basedobot"
     ports:
-      - "3306:3306"
+      - "3356:3306"
     volumes:
       - db-data:/var/lib/mysql
 volumes:
