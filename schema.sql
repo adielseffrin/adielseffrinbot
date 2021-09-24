@@ -94,8 +94,20 @@ CREATE TABLE `tentativas_fome` (
   `id_usuario` int(11) DEFAULT NULL,
   `pontos` float NOT NULL DEFAULT 0,
   `data_tentativa` date DEFAULT curdate(),
-  `receita` tinyint(1) DEFAULT 0,
+  `extra` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`)
+) 
+ENGINE=InnoDB 
+DEFAULT CHARSET=utf8mb4
+
+
+-- -----------------------------------------------------
+-- Table `basedobot`.`tentativas_fome`
+-- -----------------------------------------------------
+CREATE TABLE `tentativas_fome_extras` (
+  `id_usuario` int(11),
+  `quantidade` int(11),
+  PRIMARY KEY (`id_usuario`)
 ) 
 ENGINE=InnoDB 
 DEFAULT CHARSET=utf8mb4
