@@ -1,6 +1,8 @@
 <?php
 use AdielSeffrinBot\Models\Pizza;
 use AdielSeffrinBot\Models\Usuario;
+use AdielSeffrinBot\Models\Mensagens;
+use AdielSeffrinBot\Models\Language;
 
 function ban($message, $write, $canal)
 {
@@ -221,7 +223,8 @@ function comandosPvt($message, $twitter, $write, $canal, $usuarioArray = null)
             $quantidade = $stack[2];
           }
           if($userObj->addFome($quantidade)){
-            $msg = "Ei @{$userObj->getNick()}, você ganhou mais {$quantidade} !fome extra".($quantidade > 1 ? 's' : '')."!";
+            // $msg = "Ei @{$userObj->getNick()}, você ganhou mais {$quantidade} !fome extra".($quantidade > 1 ? 's' : '')."!";
+            $msg = Mensagens::getMensagem('fomeExtra',array(':nick' => $userObj->getNick(),':quantidade' => $quantidade,':plural' => $quantidade > 1 ? 's' : ''));
             $write->ircPrivmsg($canal, $msg);
           }else{
             $write->ircPrivmsg($canal, "Ei @adielseffrrin, dá um conferes aqui que deu ruim 😂");
@@ -244,8 +247,20 @@ function comandosPvt($message, $twitter, $write, $canal, $usuarioArray = null)
           $write->ircPrivmsg($canal, "Ei @adielseffrin, {$userObj->getNick()} agora é @{$stack[2]}");
         break;
       case "!surpresa":
-        Pizza::sorteiaIngrediente(true);
+        Pizza::liberaIngrediente(10);
         break;  
+      case "!liberapizza":
+      case "!freepizza":
+        Pizza::sorteiaReceita();
+        break; 
+      case "!liberaingrediente":
+      case "!freeingredient":
+          Pizza::liberaIngrediente($stack[1]);
+          break;  
+      case "!mudaidioma":
+        echo "quale";
+        Language::setLanguage($stack[1]);
+        break;
     }
 
   }
@@ -271,7 +286,8 @@ function social($message, $write, $canal)
         $write->ircPrivmsg($canal, "Instagram: https://instagram.com/adielseffrin");
         break;
       case "!discord":
-        $write->ircPrivmsg($canal, "/me Venha para a caverna! -> https://discord.io/caverna Por favor, não se esqueça de passar no canal #regras para liberar o acesso á todas as salas do nosso servidor ^^");
+        $write->ircPrivmsg($canal, "/me Check out our discord server -> https://discord.gg/Cnmr7suCnT");
+        // $write->ircPrivmsg($canal, "/me Venha para a caverna! -> https://discord.io/caverna Por favor, não se esqueça de passar no canal #regras para liberar o acesso á todas as salas do nosso servidor ^^");
         break;
     }
   }

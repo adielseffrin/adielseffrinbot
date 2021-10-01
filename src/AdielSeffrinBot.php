@@ -13,6 +13,9 @@ use AdielSeffrinBot\Models\Usuario;
 use AdielSeffrinBot\Models\ConexaoBD;
 use AdielSeffrinBot\Models\Pizza;
 
+use AdielSeffrinBot\Models\Language;
+use AdielSeffrinBot\Models\Mensagens;
+
 require_once 'comandos.php';
 
 class AdielSeffrinBot
@@ -67,13 +70,14 @@ class AdielSeffrinBot
       Lista de ingredientes
       mudar nick
       */
-      $tempoPizza = 302;
+      $tempoPizza = 301;
       Pizza::$write = $write;
       $this->client->addPeriodicTimer($tempoPizza, function () use ($write) {
         Pizza::sorteia();
       });
 
       $this->atualizaListaSubs($this->twitch->getSubs());
+      Language::startLanguage();
       
     });
 
@@ -89,7 +93,7 @@ class AdielSeffrinBot
   {
 
     $write->ircJoin($_SERVER['TWITCH_CHANNEL']);
-    $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], 'Sou um bot ou um bug?');
+    $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], Mensagens::getMensagem('onJoin',null));
     
     //$this->debugando = new Debugando();
     $this->twitter = new Twitter();
@@ -111,7 +115,7 @@ class AdielSeffrinBot
         $stack = explode(" ", $mesagemLower);
         $comando = $stack[0];
       }
-      if(is_null($comando) || $comando !== '!voltei')
+      if(is_null($comando) || $comando !== '!voltei' || $comando !== '!back' || $comando !== '!imback')
         $this->validaAusencia($message,$write);
 
       if (!is_null($comando)) {
@@ -155,10 +159,12 @@ class AdielSeffrinBot
             break;
           case "!reuniao":
           case "!reunião":
+          case "!meeting":
             $username = str_replace("@", "", $message['user']);
             $index = array_search($username,array_column($this->ausenciaArray, 'user'));
             if($index === false){
-              $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Boa reunião @" . $username . "!");
+              // $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Boa reunião @" . $username . "!");
+              $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], Mensagens::getMensagem('onMeeting',array(":nick" => $username)));
               array_push($this->ausenciaArray,array('user' => $username, 'event' => 'reuniao'));
             }
             break;
@@ -166,15 +172,20 @@ class AdielSeffrinBot
             $username = str_replace("@", "", $message['user']);
             $index = array_search($username,array_column($this->ausenciaArray, 'user'));
             if($index === false){
-              $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Obrigado pelo lurk @" . $username . "!");
+              // $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Obrigado pelo lurk @" . $username . "!");
+              $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], Mensagens::getMensagem('onLurk',array(":nick" => $username)));
               array_push($this->ausenciaArray,array('user' => $username, 'event' => 'lurk'));
+              var_dump($this->ausenciaArray);
             }
             break;
           case "!voltei":
+          case "!back":
+          case "!imback":
             $username = str_replace("@", "", $message['user']);
             $index = array_search($username,array_column($this->ausenciaArray, 'user'));
             if($index !== false){
-              $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Aeeee 🎆🎉🎊, @" . $username . ", que bom que você voltou!");
+              // $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Aeeee 🎆🎉🎊, @" . $username . ", que bom que você voltou!");
+              $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], Mensagens::getMensagem('onReturn',array(":nick" => $username)));
               unset($this->ausenciaArray[$index]);
               $this->ausenciaArray = array_values($this->ausenciaArray);
             }
@@ -186,6 +197,10 @@ class AdielSeffrinBot
           case "!atualizart":
           case "!tweetapramim":
           case "!surpresa":
+          case "!liberapizza":
+          case "!freepizza":
+          case "!liberaingrediente":
+          case "!freeingredient":
             comandosPvt($message,$this->twitter, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!apresentação":
@@ -207,6 +222,9 @@ class AdielSeffrinBot
               $index = $this->verificaUserNoChat($username);
               comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL'], $this->pessoasNoChat[$index]);
             }
+            break;
+          case "!mudaidioma":
+            comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!sechama":
           case "!renomear":
@@ -271,7 +289,10 @@ class AdielSeffrinBot
 // PHP Notice:  Undefined index: data in /home/adielseffrin/adielseffrinbot/src/AdielSeffrinBot.php on line 265
 // PHP Warning:  Invalid argument supplied for foreach() in /home/adielseffrin/adielseffrinbot/src/AdielSeffrinBot.php on line 265
     if($tipoAusencia === 'lurk'){
-      return $mensagensLurk[rand(0,count($mensagensLurk)-1)];
+      $length = count(Mensagens::getMensagem('lurkMessages',null)); 
+      $pos = mt_rand (0, $length-1);
+      return Mensagens::getMensagemArray('lurkMessages',$pos, array(":nick" => $username));
+      // return $mensagensLurk[rand(0,$length-1)];
     }else{
       return $mensagensReuniao[rand(0,count($mensagensReuniao)-1)];
     }

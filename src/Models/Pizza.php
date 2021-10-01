@@ -3,6 +3,8 @@ use AdielSeffrinBot\Models\ConexaoBD;
 
 namespace AdielSeffrinBot\Models;
 
+use AdielSeffrinBot\Models\Language;
+
 class Pizza{
     public static $ingrediente;
     public static $ingredientes;
@@ -27,24 +29,20 @@ class Pizza{
     }
 
     public static function sorteia(){
-        if(Pizza::$trigger == 0) Pizza::$trigger = mt_rand(1, 6);
+        if(Pizza::$trigger == 0) Pizza::$trigger = mt_rand(1, 4);
         $condicao = Pizza::$rodada++ != Pizza::$trigger;
-
+        
         if($condicao)
-            Pizza::sorteiaIngrediente();
+            Pizza::liberaIngrediente(mt_rand(0,10));
         else{
-            Pizza::$trigger = mt_rand (1, 6);
+            Pizza::$trigger = mt_rand (1, 4);
             Pizza::$rodada = 0;
             Pizza::sorteiaReceita();
         }
         echo PHP_EOL."Rodada: ".Pizza::$rodada." --- Trigger: ".Pizza::$trigger.PHP_EOL;
     }
 
-    public static function sorteiaIngrediente($surpresa = false){
-        if($surpresa)
-            $numero = 10;
-        else
-            $numero = rand(0,10);
+    public static function liberaIngrediente($numero){
         $result = Pizza::listaDeIngredientes()[$numero];
         Pizza::$ingrediente = $result;
         Pizza::$ingredientes = null;
@@ -61,6 +59,9 @@ class Pizza{
         $stmt->execute();
         $result = $stmt->fetch();
         $pid = $result["id"];
+
+        $language = Language::getLanguage();
+        if($language == 'pt_br'){
         $stmt = ConexaoBD::getInstance()->prepare("
             SELECT p.descricao AS pizza, i.descricao AS ingrediente, ip.id_ingrediente FROM pizzas AS p 
             INNER JOIN ingredientes_pizzas AS ip 
@@ -69,6 +70,16 @@ class Pizza{
             ON ip.id_ingrediente = i.id
             WHERE p.id = :pid;
          ");
+        }else{
+            $stmt = ConexaoBD::getInstance()->prepare("
+            SELECT p.description AS pizza, i.description AS ingrediente, ip.id_ingrediente FROM pizzas AS p 
+            INNER JOIN ingredientes_pizzas AS ip 
+            ON p.id = ip.id_pizza
+            INNER JOIN ingredientes AS i
+            ON ip.id_ingrediente = i.id
+            WHERE p.id = :pid;
+         "); 
+        }
         $stmt->execute(array(":pid" => $pid));
         $result = $stmt->fetchAll();
         $ingredientes = [];
@@ -143,7 +154,12 @@ class Pizza{
         }
         $plural = '';
         if($quantidadeColetada > 1) $plural='s';
-        $text = "@".$objUser->getNick()." coletou {$quantidadeColetada} {$ingredienteDescricao}{$plural}!";
+        // $text = "@".$objUser->getNick()." coletou {$quantidadeColetada} {$ingredienteDescricao}{$plural}!";
+        $text = Mensagens::getMensagem('onGetIngredient',array(
+            ':nick'=>$objUser->getNick(),
+            ":quantidade"=>$quantidadeColetada,
+            ":descricao"=>$ingredienteDescricao,
+            ":plural"=>$plural));
         Pizza::$write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], $text);
     }
 
@@ -183,7 +199,7 @@ class Pizza{
 
     public static function jogar($objUser){
         $pontos = mt_rand (5, 9) + mt_rand (0, 99)/100;
-        $stmt = ConexaoBD::getInstance()->prepare('INSERT INTO tentativas_fome (id_usuario, pontos, receita) VALUES (:id_usuario, :pontos, 1)');
+        $stmt = ConexaoBD::getInstance()->prepare('INSERT INTO tentativas_fome (id_usuario, pontos, extra) VALUES (:id_usuario, :pontos, 1)');
         $stmt->execute(array(':id_usuario'=>$objUser->getId(), ':pontos' => $pontos));  
         return $pontos;  
       }
