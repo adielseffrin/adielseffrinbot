@@ -34,7 +34,31 @@ class Mensagens{
       "Ei @{:nick} a chefia sabe que você está em reunião e aqui ao mesmo tempo?",
       "Ih alá, @{:nick}, voltou e nem avisou o chat 😋",
       ],
-      "primeMessage" => "Você sabia que é possível vincular a sua conta Amazon Prime com a Twitch e ter uma inscrição de graça(!!) por mês para ajudar o seu canal favorito, ou até esse aqui? Confira abaixo no painel 'Prime' o passo a passo de como fazer!",
+    "primeMessage" => "Você sabia que é possível vincular a sua conta Amazon Prime com a Twitch e ter uma inscrição de graça(!!) por mês para ajudar o seu canal favorito, ou até esse aqui? Confira abaixo no painel 'Prime' o passo a passo de como fazer!",
+    'banReasons' => [
+      "por não se comportar!",
+      "por não conversar com os amigos!",
+      "pois está muito incoveniente hoje!",
+      "pois é amigo do pandadomal!",
+      "pois não é amigo do deninho!",
+      "por programar em java (e gostar)!!",
+      "por falar mal de HTML",
+      "por fazer fofocas sobre HTML",
+      "por falar que HTML é uma linguagem de programação",
+      "por falar que HTML não é uma linguagem de programação",
+      "por talvez ser um matemático",
+      "por não fazer café com água fervendo",
+      "por fazer a chimarrão com água fervendo",
+      "por ter muito foco",
+      "por querer ser produtivo",
+      "por dizer que não procrastinar (mentir é feio)"
+    ],
+    'leaveActions' =>  [
+      "banid@",
+      "convidad@ a se retirar",
+      "ignorad@",
+      "estapeado"
+    ],
     ];
   public static $mensagensEN = [
     'onJoin' => 'Am I a bot or a bug?',
@@ -69,6 +93,30 @@ class Mensagens{
       "Look at that, @{:nick} came back and didn't tell us 😋",
       ],
       "primeMessage" => "Do you know you can use your Amazon Prime account on Twitch and have a FREE subscription in one channel each month to support your favorite channels or even this one? Check it out below on the Prime panel to see how to do this!",
+      'banReasons' => [
+        "for not behaving!",
+        "for not talk with our friends!",
+        "because s/he is to inconvenient today!",
+        "because s/he is pandadomal's friend!",
+        "because s/he is not deninhos's friend!",
+        "for programming in Java (and like it)!!",
+        "for make gossips about HTML",
+        "for bad-mouthing HTML",
+        "for say that HTML is a programming language",
+        "for say that HTML is not a programming language",
+        "for maybe be a mathematician",
+        "for make coffee with cold water",
+        "for make a chimarrão with boiling water",
+        "for having so much focus",
+        "for want to be productive",
+        "for say s/he don't procrastinate (lie is rude)"
+      ],
+      'leaveActions' => [
+        "banned",
+        "asked to leave",
+        "ignored",
+        "kicked out"
+      ]
 ];
 
   public static function getMensagem($identificador, $params) {

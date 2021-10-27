@@ -45,7 +45,6 @@ class AdielSeffrinBot
       ->setUsername($_SERVER['TWITCH_USERNAME']);
 
     $this->client = new \Phergie\Irc\Client\React\Client();
-    //$this->socketConnector = new React\Socket\Connector($this->client->getLoop());
     $this->ausenciaArray = array();
     $this->pessoasNoChat = array();
     
@@ -161,7 +160,6 @@ class AdielSeffrinBot
             $username = str_replace("@", "", $message['user']);
             $index = array_search($username,array_column($this->ausenciaArray, 'user'));
             if($index === false){
-              // $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Boa reunião @" . $username . "!");
               $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], Mensagens::getMensagem('onMeeting',array(":nick" => $username)));
               array_push($this->ausenciaArray,array('user' => $username, 'event' => 'reuniao'));
             }
@@ -170,7 +168,6 @@ class AdielSeffrinBot
             $username = str_replace("@", "", $message['user']);
             $index = array_search($username,array_column($this->ausenciaArray, 'user'));
             if($index === false){
-              // $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Obrigado pelo lurk @" . $username . "!");
               $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], Mensagens::getMensagem('onLurk',array(":nick" => $username)));
               array_push($this->ausenciaArray,array('user' => $username, 'event' => 'lurk'));
               var_dump($this->ausenciaArray);
@@ -182,7 +179,6 @@ class AdielSeffrinBot
             $username = str_replace("@", "", $message['user']);
             $index = array_search($username,array_column($this->ausenciaArray, 'user'));
             if($index !== false){
-              // $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Aeeee 🎆🎉🎊, @" . $username . ", que bom que você voltou!");
               $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], Mensagens::getMensagem('onReturn',array(":nick" => $username)));
               unset($this->ausenciaArray[$index]);
               $this->ausenciaArray = array_values($this->ausenciaArray);
@@ -256,8 +252,6 @@ class AdielSeffrinBot
     return $index;
   }
 
-
-
   public function validaAusencia($message, $write){
     $username = str_replace("@", "", $message['user']);
     $index = array_search($username,array_column($this->ausenciaArray, 'user'));
@@ -270,19 +264,12 @@ class AdielSeffrinBot
   }
 
   private function retornaMensagemAusencia($username, $tipoAusencia){
-    $mensagensReuniao = [
-      "Hmmmmmmmmmmm.. tu não estavas em reuniao? Hein @" . $username . " ?",
-      "Hmmmmmmmmmmm.. e a reunião @" . $username . "?",
-      "Ei @" . $username . " a chefia sabe que você está em reunião e aqui ao mesmo tempo?",
-      "Ih alá, @" . $username .", voltou e nem avisou o chat 😋",
-    ];
-
     if($tipoAusencia === 'lurk'){
       $length = count(Mensagens::getMensagem('lurkMessages',null)); 
       $pos = mt_rand (0, $length-1);
       return Mensagens::getMensagemArray('lurkMessages',$pos, array(":nick" => $username));
     }else{
-      return $mensagensReuniao[rand(0,count($mensagensReuniao)-1)];
+      // return $mensagensReuniao[rand(0,count($mensagensReuniao)-1)];
       $length = count(Mensagens::getMensagem('meetingMessages',null)); 
       $pos = mt_rand (0, $length-1);
       return Mensagens::getMensagemArray('meetingMessages',$pos, array(":nick" => $username));

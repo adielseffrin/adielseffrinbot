@@ -41,6 +41,9 @@ function ban($message, $write, $canal)
       break;
     case 2:
       $username = str_replace("@", "", $stack[1]);
+      $reason = Mensagens::getMensagemArray('banReasons', mt_rand(0, count(Mensagens::getMensagem('banReasons',null))),null);
+      $action = Mensagens::getMensagemArray('leaveActions', mt_rand(0, count(Mensagens::getMensagem('leaveActions',null))),null);
+      //TODO i'M HERE
       $write->ircPrivmsg($canal, "@$username foi {$retiradas[rand(0, count($retiradas) - 1)]} {$motivos[rand(0, count($motivos) - 1)]}");
       break;
     default:
