@@ -137,15 +137,18 @@ function comandosBD($message, $write, $canal,$usuarioArray){
         if($userObj->podeJogar()) {
           $pontos = $userObj->jogar();
           if($pontos < 3)
-            $write->ircPrivmsg($canal, "Ei @" . $username . " tá com pouca fome né. Seu nível de fome foi {$pontos}");
+            $msg = Mensagens::getMensagemArray('hungerMessages',"low",array(':nick'=>$username, ':pontos' =>$pontos));
           else if($pontos < 6)
-            $write->ircPrivmsg($canal, "Ei @" . $username . " que fominha né. Seu nível de fome foi {$pontos}");
+            $msg = Mensagens::getMensagemArray('hungerMessages',"medium",array(':nick'=>$username, ':pontos' =>$pontos));
           else if($pontos < 9.75)
-            $write->ircPrivmsg($canal, "@" . $username . " !! Que fome toda é essa?? Seu nível de fome foi {$pontos}");
+            $msg = Mensagens::getMensagemArray('hungerMessages',"high",array(':nick'=>$username, ':pontos' =>$pontos));
           else 
-            $write->ircPrivmsg($canal, "Corram para as colinas, pois @" . $username . " está com A fome! Seu nível de fome foi {$pontos}");
+            $msg = Mensagens::getMensagemArray('hungerMessages',"ultra",array(':nick'=>$username, ':pontos' =>$pontos));
         }
-        else $write->ircPrivmsg($canal, "Sabia @" . $username . " que fome é ou pode ser um estado de espírito? (E você já jogou hoje 🤐)");
+        else 
+          $msg = Mensagens::getMensagemArray('hungerMessages',"nomore",array(':nick'=>$username));
+        
+        $write->ircPrivmsg($canal, $msg);
       break;
       case "!rank":
       case "!ranking":
@@ -215,7 +218,6 @@ function comandosPvt($message, $twitter, $write, $canal, $usuarioArray = null)
       case "!atualizart":
         $twitter->atualizaRT();
         break;
-      case "!fomeExtra":
       case "!fomeextra":
           $userObj = $usuarioArray['object'];
           $quantidade = 1;
@@ -223,6 +225,20 @@ function comandosPvt($message, $twitter, $write, $canal, $usuarioArray = null)
             $quantidade = $stack[2];
           }
           if($userObj->addFome($quantidade)){
+            // $msg = "Ei @{$userObj->getNick()}, você ganhou mais {$quantidade} !fome extra".($quantidade > 1 ? 's' : '')."!";
+            $msg = Mensagens::getMensagem('fomeExtra',array(':nick' => $userObj->getNick(),':quantidade' => $quantidade,':plural' => $quantidade > 1 ? 's' : ''));
+            $write->ircPrivmsg($canal, $msg);
+          }else{
+            $write->ircPrivmsg($canal, "Ei @adielseffrrin, dá um conferes aqui que deu ruim 😂");
+          }
+        break;
+      case "!fomecomprada":
+          $userObj = $usuarioArray['object'];
+          $quantidade = 1;
+          if(isset($stack[2])){
+            $quantidade = $stack[2];
+          }
+          if($userObj->addFomeComprada($quantidade)){
             // $msg = "Ei @{$userObj->getNick()}, você ganhou mais {$quantidade} !fome extra".($quantidade > 1 ? 's' : '')."!";
             $msg = Mensagens::getMensagem('fomeExtra',array(':nick' => $userObj->getNick(),':quantidade' => $quantidade,':plural' => $quantidade > 1 ? 's' : ''));
             $write->ircPrivmsg($canal, $msg);
@@ -258,7 +274,6 @@ function comandosPvt($message, $twitter, $write, $canal, $usuarioArray = null)
           Pizza::liberaIngrediente($stack[1]);
           break;  
       case "!mudaidioma":
-        echo "quale";
         Language::setLanguage($stack[1]);
         break;
     }
@@ -284,6 +299,9 @@ function social($message, $write, $canal)
         break;
       case "!instagram":
         $write->ircPrivmsg($canal, "Instagram: https://instagram.com/adielseffrin");
+        break;
+      case "!linkedin":
+        $write->ircPrivmsg($canal, "Linkedin: https://www.linkedin.com/in/adielseffrin/");
         break;
       case "!discord":
         $write->ircPrivmsg($canal, "/me Check out our discord server -> https://discord.gg/Cnmr7suCnT");

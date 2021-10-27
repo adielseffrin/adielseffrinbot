@@ -7,6 +7,10 @@ class Language{
   public static function startLanguage(){
     if(!isset(self::$language))
       self::$language = $_SERVER['BOTLANGUAGE'] != '' ? $_SERVER['BOTLANGUAGE'] : 'pt_br';
+    
+    echo PHP_EOL."===========================================".PHP_EOL;
+    echo "Bot started on mode: ".self::$language;
+    echo PHP_EOL."===========================================".PHP_EOL;
   }
   
   public static function getLanguage() {
@@ -16,8 +20,7 @@ class Language{
   public static function setLanguage($lang) {
     
     self::$language = $lang;
-    echo PHP_EOL."===========================================".PHP_EOL;
-    echo "language: ".$lang;
+   
   }
 
   public static function resetLanguage() {

@@ -91,7 +91,7 @@ class AdielSeffrinBot
 
   function onJoin($connection, $write)
   {
-
+    Language::startLanguage();
     $write->ircJoin($_SERVER['TWITCH_CHANNEL']);
     $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], Mensagens::getMensagem('onJoin',null));
     
@@ -115,7 +115,7 @@ class AdielSeffrinBot
         $stack = explode(" ", $mesagemLower);
         $comando = $stack[0];
       }
-      if(is_null($comando) || $comando !== '!voltei' || $comando !== '!back' || $comando !== '!imback')
+      if(is_null($comando) || ( $comando !== '!voltei' && $comando !== '!back' && $comando !== '!imback') )
         $this->validaAusencia($message,$write);
 
       if (!is_null($comando)) {
@@ -130,6 +130,7 @@ class AdielSeffrinBot
           case "!twitter":
           case "!github":
           case "!instagram":
+          case "!linkedin":
           case "!discord":
             social($message, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
@@ -139,9 +140,6 @@ class AdielSeffrinBot
           case "!rt":
             retweet($this->twitter, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
-          // case "!debugando":
-          //   $this->debugando->tratarComando($message, $write, $_SERVER['TWITCH_CHANNEL']);
-          //   break;
           case "!pizza":
           case "!🍕":
           case "!fome":
@@ -208,7 +206,7 @@ class AdielSeffrinBot
             apresentar($message, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!fomeextra":
-          case "!fomeExtra":
+          case "!fomecomprada":
             if(!empty($stack[1])){
               $username = $stack[1];
               $index = $this->verificaUserNoChat($username);
@@ -272,29 +270,22 @@ class AdielSeffrinBot
   }
 
   private function retornaMensagemAusencia($username, $tipoAusencia){
-    $mensagensLurk = [
-      "Hmmmmmmmmmmm.. tu não estavas de lurk? Hein @" . $username . "?",
-      "Oh @" . $username .", tu não disse que estavas de lurk? Voltou?",
-      "Lurk bom esse hein @" . $username,
-      "Ih alá, @" . $username .", voltou e nem avisou o chat 😋",
-    ];
-
     $mensagensReuniao = [
       "Hmmmmmmmmmmm.. tu não estavas em reuniao? Hein @" . $username . " ?",
       "Hmmmmmmmmmmm.. e a reunião @" . $username . "?",
       "Ei @" . $username . " a chefia sabe que você está em reunião e aqui ao mesmo tempo?",
       "Ih alá, @" . $username .", voltou e nem avisou o chat 😋",
     ];
-//TODO Verificar erro
-// PHP Notice:  Undefined index: data in /home/adielseffrin/adielseffrinbot/src/AdielSeffrinBot.php on line 265
-// PHP Warning:  Invalid argument supplied for foreach() in /home/adielseffrin/adielseffrinbot/src/AdielSeffrinBot.php on line 265
+
     if($tipoAusencia === 'lurk'){
       $length = count(Mensagens::getMensagem('lurkMessages',null)); 
       $pos = mt_rand (0, $length-1);
       return Mensagens::getMensagemArray('lurkMessages',$pos, array(":nick" => $username));
-      // return $mensagensLurk[rand(0,$length-1)];
     }else{
       return $mensagensReuniao[rand(0,count($mensagensReuniao)-1)];
+      $length = count(Mensagens::getMensagem('meetingMessages',null)); 
+      $pos = mt_rand (0, $length-1);
+      return Mensagens::getMensagemArray('meetingMessages',$pos, array(":nick" => $username));
     }
   }
 

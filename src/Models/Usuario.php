@@ -94,6 +94,10 @@ class Usuario{
       return $this->fome->addFome($this->id, $quantidade);
     }
 
+    public function addFomeComprada($quantidade){
+      return $this->fome->addFomeComprada($this->id, $quantidade);
+    }
+
     public function addSub(){
       try{
         ConexaoBD::getInstance()->beginTransaction();

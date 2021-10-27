@@ -25,7 +25,6 @@ class Pizza{
         }else{
             return Pizza::$listaDeIngredientes;
         }
-        var_dump(Pizza::$listaDeIngredientes);
     }
 
     public static function sorteia(){
@@ -51,7 +50,6 @@ class Pizza{
         Pizza::$timeColeta = time();
         Pizza::$coletores = [];
         Pizza::avisarChat();
-        //return $result; 
     }
 
     public static function sorteiaReceita(){
@@ -122,13 +120,23 @@ class Pizza{
         array_push(Pizza::$coletores, $objUser->getId());
         $stmt = ConexaoBD::getInstance()->prepare('SELECT id, quantidade FROM ingredientes_usuario WHERE id_usuario = :id_usuario AND id_ingrediente = :id_ingrediente');
         $ingredienteId = Pizza::$ingrediente['id'];
-        $ingredienteDescricao = Pizza::$ingrediente['descricao'];
+        
+        if(Language::getLanguage() == "en"){
+            $ingredienteDescricao = Pizza::$ingrediente['description'];
+        }else{
+            $ingredienteDescricao = Pizza::$ingrediente['descricao'];
+        }
+        
         
         if(Pizza::$ingrediente['id'] == 11){
             $numero = rand(0,9);
             $result = Pizza::listaDeIngredientes()[$numero];
             $ingredienteId = $result['id'];
-            $ingredienteDescricao = $result['descricao'];
+            if(Language::getLanguage() == "en"){
+                $ingredienteDescricao = $result['description'];
+            }else{
+                $ingredienteDescricao = $result['descricao'];
+            }
         }
         
         $stmt->execute(array(':id_usuario'=>$objUser->getId(), ':id_ingrediente' => $ingredienteId));
@@ -155,6 +163,7 @@ class Pizza{
         $plural = '';
         if($quantidadeColetada > 1) $plural='s';
         // $text = "@".$objUser->getNick()." coletou {$quantidadeColetada} {$ingredienteDescricao}{$plural}!";
+        //TODO check ingrer description for english
         $text = Mensagens::getMensagem('onGetIngredient',array(
             ':nick'=>$objUser->getNick(),
             ":quantidade"=>$quantidadeColetada,
@@ -186,14 +195,20 @@ class Pizza{
     }
 
     public static function listarIngredientes($objUser){
-        $stmt = ConexaoBD::getInstance()->prepare(" select nick, descricao, quantidade from ingredientes_usuario as iu inner join ingredientes as i on i.id = iu.id_ingrediente inner join usuarios as u on iu.id_usuario = u.id where u.id = :id_usuario;");
+        $stmt = ConexaoBD::getInstance()->prepare(" select nick, descricao,description, quantidade from ingredientes_usuario as iu inner join ingredientes as i on i.id = iu.id_ingrediente inner join usuarios as u on iu.id_usuario = u.id where u.id = :id_usuario;");
         $stmt->execute(array(':id_usuario'=>$objUser->getId()));
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         $lista = [];
         foreach($result as $key => $val){
-            array_push($lista, "{$val['descricao']}[{$val['quantidade']}]");
+            if(Language::getLanguage() == "en"){
+                array_push($lista, "{$val['description']}[{$val['quantidade']}]");
+            }else{
+                array_push($lista, "{$val['descricao']}[{$val['quantidade']}]");
+            }
+           
           }
-        $mensagem = "Ei @{$objUser->getNick()}! Você tem os seguintes ingredientes guardados: ".implode(" | ",$lista);
+        // $mensagem = "Ei @{$objUser->getNick()}! Você tem os seguintes ingredientes guardados: ".implode(" | ",$lista);
+        $mensagem =  Mensagens::getMensagem('onListIngredients',array(':nick'=>$objUser->getNick(), ':listOfIngredients' => implode(" | ",$lista)));
         Pizza::$write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], $mensagem);
     }
 
@@ -212,17 +227,35 @@ class Pizza{
         // descobrir pq não rola 2 arquivos na mesma porta
         $file = 'dados_comida.json';
         if(Pizza::$ingrediente !== null){
-            $text = Pizza::$ingrediente["mensagem"];
+            if(Language::getLanguage() == "en"){
+                $text = Pizza::$ingrediente["message"];
+            }else{
+                $text = Pizza::$ingrediente["mensagem"];
+            }
+              
             file_put_contents($file, json_encode(array("comida" => Pizza::$ingrediente["descricao"],"url_imagem" => Pizza::$ingrediente["url_imagem"], "time" => date('Y-m-d H:i:s'))));
             $data = array("comida" => Pizza::$ingrediente["descricao"],"url_imagem" => Pizza::$ingrediente["url_imagem"]);
             $header = array("time" => date('Y-m-d H:i:s'), 'type'=> 'pizza');
             $mensagem = array('header' => $header, 'data' => $data);
             file_put_contents('dados_tela.json', json_encode($mensagem));
         }
-        else
-            $text = "Uma nova receita precisa ser feita! Será que você tem o que é preciso para fazer uma pizza de ".Pizza::$receita["descricao"]."?";
+        else{
+            if(Language::getLanguage() == "en"){
+                $desc = Pizza::$receita["descricao"];
+            }else{
+                $desc = Pizza::$receita["descricao"];
+            }
+            var_dump(Pizza::$receita);
+            $text =  Mensagens::getMensagem('onNewRecipe',array(':desc'=>$desc));
+        }
 
-        Pizza::$write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], $text." (Digite !pizza)");
+        if(Language::getLanguage() == "en"){
+            $compl = " (Type !pizza)";
+        }else{
+            $compl = " (Digite !pizza)";
+        }
+
+        Pizza::$write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], $text.$compl);
     }
 
 }
