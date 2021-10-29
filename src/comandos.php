@@ -253,7 +253,13 @@ function comandosPvt($message, $twitter, $write, $canal, $usuarioArray = null)
         $userObj = $usuarioArray['object'];
         $userObj->addsub();
         $write->ircPrivmsg($canal, "Ei @adielseffrin, @{$userObj->getNick()} agora é um sub 🐱‍🏍!");
+        //adicionar pacote prata
+        //avisa do pacote para @user
       break;
+      case "!testasub":
+        $userObj = $usuarioArray['object'];
+        Pizza::sorteiaReceitaParaNovoSub($userObj);
+        break;
       case "!removesub":
         $userObj = $usuarioArray['object'];
         $userObj->removesub();

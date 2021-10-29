@@ -210,14 +210,15 @@ class AdielSeffrinBot
             }
             break;
           case "!addsub":
+          case "!testasub":
           case "!removesub":
-            if(!empty($stack[1])){
-              $username = $stack[1];
-              $index = $this->verificaUserNoChat($username);
-              comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL'], $this->pessoasNoChat[$index]);
-            }
-            break;
-          case "!mudaidioma":
+              if(!empty($stack[1])){
+                $username = $stack[1];
+                $index = $this->verificaUserNoChat($username);
+                comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL'], $this->pessoasNoChat[$index]);
+              }
+              break;
+              case "!mudaidioma":
             comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!sechama":

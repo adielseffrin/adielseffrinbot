@@ -52,7 +52,7 @@ class Pizza{
         Pizza::avisarChat();
     }
 
-    public static function sorteiaReceita(){
+    public static function sorteiaPizzaBuscaIngrerdientes(){
         $stmt = ConexaoBD::getInstance()->prepare("SELECT id FROM pizzas ORDER by rand() LIMIT 1");
         $stmt->execute();
         $result = $stmt->fetch();
@@ -91,6 +91,23 @@ class Pizza{
             array_push($ingredientes,$r);
             array_push($id_ingredientes,$r['id_ingrediente']);
         }
+
+        return array(
+            'pid'=>$pid,
+            'pizza'=>$pizza,
+            'ingr'=>$ingr,
+            'ingredientes'=>$ingredientes,
+            'id_ingredientes'=>$id_ingredientes,
+        ); 
+    }
+
+    public static function sorteiaReceita(){
+        $dadosDaBusca = self::sorteiaPizzaBuscaIngrerdientes();
+        $pid = $dadosDaBusca['pid'];
+        $pizza = $dadosDaBusca['pizza'];
+        $ingr = $dadosDaBusca['ingr'];
+        $ingredientes = $dadosDaBusca['ingredientes'];
+        $id_ingredientes = $dadosDaBusca['id_ingredientes'];
         
         Pizza::$receita = array("id" => $pid, "descricao" => $pizza." (".implode(", ", $ingr).")");
         Pizza::$ingrediente = null;
@@ -99,7 +116,56 @@ class Pizza{
         Pizza::$timeColeta = time();
         Pizza::$coletores = [];
         Pizza::avisarChat();
-        //return $result; 
+    }
+
+    public static function sorteiaReceitaParaNovoSub($objUser){
+        $dadosDaBusca = self::sorteiaPizzaBuscaIngrerdientes();
+        $ingredientes = $dadosDaBusca['ingredientes'];
+        $id_ingredientes =  $dadosDaBusca['id_ingredientes'];
+        $id_ingredientes_list =  implode(',',$id_ingredientes);
+        
+        $stmt = ConexaoBD::getInstance()->prepare("SELECT id_ingrediente FROM ingredientes_usuario WHERE id_usuario = :id_usuario AND id_ingrediente IN ($id_ingredientes_list)");
+        $stmt->execute(array(':id_usuario'=>$objUser->getId()));
+        $ingredientesExistentes = $stmt->fetchAll(\PDO::FETCH_NUM);
+        if(!$ingredientesExistentes){
+            $ingredientesFaltantes = $id_ingredientes;
+        }else{
+            var_dump($ingredientesExistentes);
+            $ingredientesExistentes = array_map(function($e){return $e[0];},$ingredientesExistentes); 
+            $ingredientesFaltantes = array_diff($id_ingredientes,$ingredientesExistentes);
+        }
+        echo "=======================".PHP_EOL;
+        var_dump($objUser->getId());
+        var_dump($id_ingredientes);
+        echo "=======================".PHP_EOL;
+        var_dump($ingredientesExistentes);
+        echo "=======================".PHP_EOL;
+        var_dump($ingredientesFaltantes);
+        echo "=======================".PHP_EOL;
+        //preve dif null
+        try{
+            ConexaoBD::getInstance()->beginTransaction();
+            foreach($ingredientesFaltantes as $id_ing){
+                $stmt = ConexaoBD::getInstance()->prepare('INSERT INTO ingredientes_usuario (id_usuario, id_ingrediente, quantidade) VALUES (:id_usuario,:id_ingrediente, :quantidade)');
+                $stmt->execute(array(':id_usuario'=>$objUser->getId(), ':id_ingrediente' => $id_ing, ':quantidade' => 1));
+            }
+            foreach($ingredientesExistentes as $id_ing){
+                $stmt = ConexaoBD::getInstance()->prepare('SELECT id FROM ingredientes_usuario WHERE id_usuario = :id_usuario AND id_ingrediente = :id_ingrediente');
+                $stmt->execute(array(':id_usuario'=>$objUser->getId(), ':id_ingrediente' => $id_ing));
+                $result = $stmt->fetch();
+                $id_ingrediente_usuario = $result['id'];
+
+                $stmt = ConexaoBD::getInstance()->prepare('UPDATE ingredientes_usuario SET quantidade  = quantidade+1 WHERE id = :id_ingrediente_usuario');
+                $stmt->execute(array(':id_ingrediente_usuario' => $id_ingrediente_usuario));    
+            }
+            
+            //todo verificar mensagem
+            Pizza::$write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "@".$objUser->getNick().", obrigado por ser um/a sub maravilhoso/a! Por isso você ganhou essa linda sacola que comtem: ".implode(", ",array_map(function($e){return $e[0];},$ingredientes)));
+            ConexaoBD::getInstance()->commit();
+        }catch(PDOExecption $e) {
+            ConexaoBD::getInstance()->rollback();
+            print "Error!: " . $e->getMessage() . "</br>";
+        } 
     }
 
     public static function coletaAtiva($id_user){
@@ -151,7 +217,7 @@ class Pizza{
         else
             $quantidadeColetada = 1;
 
-    if($result && $result['quantidade'] >= 0){
+        if($result && $result['quantidade'] >= 0){
             $quantidade = $result['quantidade'];
             $id_ingrediente_usuario = $result['id'];
             $stmt = ConexaoBD::getInstance()->prepare('UPDATE ingredientes_usuario SET quantidade  = :quantidade WHERE id = :id_ingrediente_usuario');
