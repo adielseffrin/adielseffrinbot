@@ -6,105 +6,67 @@ use AdielSeffrinBot\Models\Language;
 
 function ban($message, $write, $canal)
 {
-
-  $motivos = array(
-    "por não se comportar!",
-    "por não conversar com os amigos!",
-    "pois está muito incoveniente hoje!",
-    "pois é amigo do pandadomal!",
-    "pois não é amigo do deninho!",
-    "por programar em java (e gostar)!!",
-    "por falar mal de HTML",
-    "porque tinha até camiseta...",
-    "por talvez ser um matemático",
-    "por não fazer café com água fervendo",
-    "por ter muito foco",
-    "por querer ser produtivo",
-    "por dizer que não procrastinas (mentir é feio)"
-  );
-
-  $retiradas = array(
-    "banid@",
-    "convidad@ a se retirar",
-    "ignorad@",
-    "chamad@ no SOE",
-    "ignorad@"
-  );
-
   $mesagemLower = strtolower($message['params']['text']);
   $stack = explode(" ", $mesagemLower);
 
   switch (count($stack)) {
     case 1:
       $username = str_replace("@", "", $message['user']);
-      $write->ircPrivmsg($canal, "@$username por favor se retire para aprender a usar o !ban");
+      switch(Language::getLanguage()){
+        case 'en':
+          $write->ircPrivmsg($canal, "@$username please get outto learn how to use the !ban command! (Just kidding!, You just need to type the user you want to \"ban\" (!ban user)");
+          break;
+        default:
+          $write->ircPrivmsg($canal, "@$username por favor se retire para aprender a usar o !ban (brincadeira, só precisa dizer quem você quer \"banir\" (!ban user)");
+      }
       break;
     case 2:
       $username = str_replace("@", "", $stack[1]);
       $reason = Mensagens::getMensagemArray('banReasons', mt_rand(0, count(Mensagens::getMensagem('banReasons',null))),null);
       $action = Mensagens::getMensagemArray('leaveActions', mt_rand(0, count(Mensagens::getMensagem('leaveActions',null))),null);
-      //TODO i'M HERE
-      $write->ircPrivmsg($canal, "@$username foi {$retiradas[rand(0, count($retiradas) - 1)]} {$motivos[rand(0, count($motivos) - 1)]}");
+      switch(Language::getLanguage()){
+        case 'en':
+          $write->ircPrivmsg($canal, "@$username was $action $reason");
+          break;
+        default:
+          $write->ircPrivmsg($canal, "@$username foi $action $reason");
+      }
       break;
     default:
       $username = str_replace("@", "", $stack[1]);
       $motivo = join(" ", array_slice($stack, 2));
-      $write->ircPrivmsg($canal, "@$username foi banido por $motivo");
+      $write->ircPrivmsg($canal, Mensagens::getMensagem('banWithReason',array(':nick'=>$username,':motivo'=>$motivo )));
   }
 }
 
 
 function perguntas($message, $write, $canal)
 {
-  $respostas = array(
-    "Depende...",
-    "Talvez...",
-    "Pode ser que sim, mas pode ser que não",
-    "Vamos ver, quem sabe...",
-    "Temos que marcar pra ver isso...",
-    "Vou ver e te aviso",
-    "E por que tu acha que eu sei isso?",
-    "Pode ser que sim, pode ser que não.",
-    "Ai.. me dá um tempo",
-    "Vish, pergunta pra alguém de verdade aí no chat",
-    "Isso eu não sei"
-  );
-
-  $qual = array(
-    "Depende...",
-    "Vamos ver, quem sabe...",
-    "Vou ver e te aviso",
-    "Ai.. me dá um tempo",
-    "Como vou saber, sou apenas um bot"
-  );
-
-  $ou = array(
-    "Sim",
-    "Não",
-    "Depende",
-  );
-
   $mesagemLower = strtolower($message['params']['text']);
-
   $stack = explode(" ", $mesagemLower);
-
   $username = $message['user'];
 
   if (count($stack) > 1) {
-    if(strpos($mesagemLower, 'resposta') !== false 
+    if((strpos($mesagemLower, 'resposta') !== false 
     && strpos($mesagemLower, 'universo')!== false 
     && strpos($mesagemLower, 'vida')!== false 
-    && strpos($mesagemLower, 'mais')!== false){
+    && strpos($mesagemLower, 'mais')!== false)||
+    (
+      strpos($mesagemLower, 'answer') !== false 
+      && strpos($mesagemLower, 'universe')!== false 
+      && strpos($mesagemLower, 'life')!== false 
+      && strpos($mesagemLower, 'more')!== false
+    )){
       $write->ircPrivmsg($canal, "@$username 42");
-    }elseif (strpos($mesagemLower, 'ou') > 0) {
-      $write->ircPrivmsg($canal, "@$username {$ou[rand(0, count($ou) - 1)]}");
-    } elseif (strpos($mesagemLower, 'qual') > 0) {
-      $write->ircPrivmsg($canal, "@$username {$qual[rand(0, count($qual) - 1)]}");
+    }elseif (strpos($mesagemLower, ' ou ') > 0 || strpos($mesagemLower, ' or ') > 0) {
+      $write->ircPrivmsg($canal, Mensagens::getMensagemArray('orAnswers',rand(0, count(Mensagens::getMensagem('orAnswers', null)) - 1), array(':nick'=>$username)));
+    } elseif (strpos($mesagemLower, ' qual ') > 0 || strpos($mesagemLower, ' which ') > 0) {
+      $write->ircPrivmsg($canal, Mensagens::getMensagemArray('whichAnswers',rand(0, count(Mensagens::getMensagem('whichAnswers',null)) - 1), array(':nick'=>$username)));
     } else {
-      $write->ircPrivmsg($canal, "@$username {$respostas[rand(0, count($respostas) - 1)]}");
+      $write->ircPrivmsg($canal, Mensagens::getMensagemArray('generalAsnwers',rand(0, count(Mensagens::getMensagem('generalAsnwers',null)) - 1), array(':nick'=>$username)));
     }
   } else {
-    $write->ircPrivmsg($canal, "Sério @$username ?! Vai só me chamar e não falar nada?");
+    $write->ircPrivmsg($canal, Mensagens::getMensagem('noQuestion',array(':nick'=>$username)));
   }
 }
 
@@ -215,6 +177,7 @@ function comandosPvt($message, $twitter, $write, $canal, $usuarioArray = null)
       break;
       case "!tweetapramim":
         unset($stack[0]);
+        echo "im here!".PHP_EOL;
         $response = $twitter->Tweetar(implode(" ",$stack) . " (Enviado por adielseffrinbot - lá da twitch!)");
         $write->ircPrivmsg($canal, "Ei @$username, tá postado!");
         break;

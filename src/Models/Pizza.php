@@ -28,13 +28,13 @@ class Pizza{
     }
 
     public static function sorteia(){
-        if(Pizza::$trigger == 0) Pizza::$trigger = mt_rand(1, 4);
+        if(Pizza::$trigger == 0) Pizza::$trigger = mt_rand(1, 3);
         $condicao = Pizza::$rodada++ != Pizza::$trigger;
         
         if($condicao)
             Pizza::liberaIngrediente(mt_rand(0,10));
         else{
-            Pizza::$trigger = mt_rand (1, 4);
+            Pizza::$trigger = mt_rand (1, 3);
             Pizza::$rodada = 0;
             Pizza::sorteiaReceita();
         }

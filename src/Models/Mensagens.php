@@ -59,6 +59,33 @@ class Mensagens{
       "ignorad@",
       "estapeado"
     ],
+    'banWithReason' => "@{:nick} foi banido por {:motivo}",
+    'generalAnswers' => [
+      "Depende...",
+      "Talvez...",
+      "Pode ser que sim, mas pode ser que não",
+      "Vamos ver, quem sabe...",
+      "Temos que marcar pra ver isso...",
+      "Vou ver e te aviso",
+      "E por que tu acha que eu sei isso?",
+      "Pode ser que sim, pode ser que não.",
+      "Ai.. me dá um tempo",
+      "Vish, pergunta pra alguém de verdade aí no chat",
+      "Isso eu não sei"
+    ],
+    'orAnswers' => [
+      "Sim",
+      "Não",
+      "Depende",
+    ],
+    'whichAnswers'=>[
+      "Depende...",
+      "Vamos ver, quem sabe...",
+      "Vou ver e te aviso",
+      "Ai.. me dá um tempo",
+      "Como vou saber, sou apenas um bot"
+    ],
+    'noQuestion' => "Sério @{:nick} ?! Vai só me chamar e não falar nada?"
     ];
   public static $mensagensEN = [
     'onJoin' => 'Am I a bot or a bug?',
@@ -116,7 +143,33 @@ class Mensagens{
         "asked to leave",
         "ignored",
         "kicked out"
-      ]
+      ],
+      'banWithReason' => "@{:nick} was banned because {:motivo}",
+      'generalAsnwers' => [
+        "@{:nick}... It depends...",
+        "@{:nick}... Maybe...",
+        "@{:nick}... Maybe yes, maybe not... I'm not sure",
+        "@{:nick}... Let's check it out, who knows...",
+        "@{:nick}... We need to set this up to check...",
+        "@{:nick}... I'll see and let you know!",
+        "@{:nick}... And why do you think I know this?",
+        "@{:nick}... Ohh... give me a break",
+        "@{:nick}... Ouch, why don't you ask for some real people on chat?",
+        "@{:nick}... This, particularly, I don't know"
+      ],
+      'orAnswers' => [
+        "@{:nick}... Yes",
+        "@{:nick}... No",
+        "@{:nick}... Maybe",
+      ],
+      'whichAnswers'=>[
+        "@{:nick}... It depends...",
+        "@{:nick}... Let's check it out, who knows...",
+        "@{:nick}... I'll see and let you know!",
+        "@{:nick}... Ohh... give me a break",
+        "@{:nick}... I don't know, I'm just a bot"
+      ],
+      'noQuestion' => "Really @{:nick} ?! Are you calling me and don't asking anythiong??"
 ];
 
   public static function getMensagem($identificador, $params) {

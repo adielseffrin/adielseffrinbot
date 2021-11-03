@@ -108,21 +108,21 @@ class AdielSeffrinBot
       $username = str_replace("@", "", $message['user']);
      
       $this->verificaUserNoChat($username);
-
-      if (strripos(strtolower($message['params']['text']), "!") === 0) {
+      if (stripos($message['params']['text'], "!") === 0) {
         $mesagemLower = strtolower($message['params']['text']);
         $stack = explode(" ", $mesagemLower);
         $comando = $stack[0];
       }
       if(is_null($comando) || ( $comando !== '!voltei' && $comando !== '!back' && $comando !== '!imback') )
-        $this->validaAusencia($message,$write);
-
+      $this->validaAusencia($message,$write);
+      
       if (!is_null($comando)) {
         switch ($comando) {
           case "!ban":
             ban($message, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!pergunta":
+          case "!question":
             perguntas($message, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!social":
