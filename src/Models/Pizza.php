@@ -252,7 +252,7 @@ class Pizza{
             $stmt = ConexaoBD::getInstance()->prepare("update ingredientes_usuario set quantidade = quantidade - 1 where id_usuario = :id_usuario and id_ingrediente in ({$ids});");
             $stmt->execute(array(':id_usuario'=>$objUser->getId()));
             $pontos = Pizza::jogar($objUser);
-            $text = "@".$objUser->getNick()." criou uma pizza de ".Pizza::$receita['descricao'] ." deliciosa! Ganhou $pontos pontos!!";
+            $text = "@".$objUser->getNick()." criou uma pizza de ".utf8_encode(Pizza::$receita['descricao']) ." deliciosa! Ganhou $pontos pontos!!";
             Pizza::$write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], $text);
         }else{
             $text = "Ei @".$objUser->getNick()." ainda faltam alguns ingredientes para fazer uma pizza de ".Pizza::$receita['descricao'] ."...";
@@ -269,7 +269,7 @@ class Pizza{
             if(Language::getLanguage() == "en"){
                 array_push($lista, "{$val['description']}[{$val['quantidade']}]");
             }else{
-                array_push($lista, "{$val['descricao']}[{$val['quantidade']}]");
+                array_push($lista, utf8_encode($val['descricao'])."[{$val['quantidade']}]");
             }
            
           }

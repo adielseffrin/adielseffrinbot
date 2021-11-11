@@ -240,12 +240,18 @@ class AdielSeffrinBot
     if($index === false){
       $user = new Usuario($username);
       $dados_twitch = $this->twitch->getUserDetailsByLogin($username);
-      if(!$user->verificarExistenciaUsuario()){
-        $user->cadastrarUsuario();
+      if(!$dados_twitch['error']){
+        if(!$user->verificarExistenciaUsuario()){
+          $user->cadastrarUsuario();
+        }else{
+          $user->carregarUsuario();
+          if($dados_twitch['data'][0]){
+            $user->setTwitchId($dados_twitch['data'][0]['id']);
+            $user->atualizaTwitchId();
+          }
+        }
       }else{
-        $user->carregarUsuario();
-        $user->setTwitchId($dados_twitch['data'][0]['id']);
-        $user->atualizaTwitchId();
+        throw new Excpetion("Não consegui acessar a twitch!\n".json_encode($dados_twitch));
       }
       array_push($this->pessoasNoChat,array('user' => $username, 'object'=> $user));
       $index = array_search($username,array_column($this->pessoasNoChat, 'user'));
