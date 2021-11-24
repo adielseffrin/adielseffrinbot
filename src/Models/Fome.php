@@ -79,14 +79,7 @@ class Fome{
       }else{
         $pontos = mt_rand (0, 9) + mt_rand (0, 99)/100;
       }
-      // if(!$this->podeHoje){
-      //   $tipoJogada = 1;
-      //   $stmt = ConexaoBD::getInstance()->prepare('UPDATE tentativas_fome_extras SET quantidade = quantidade - 1 WHERE id_usuario = :id_usuario');
-      //   $stmt->execute(array(':id_usuario'=>$id)); 
-      //   $this->jogadasExtras--;
-      // }else{
-      //   $this->jogadasHoje++;
-      // }
+
       $stmt = ConexaoBD::getInstance()->prepare('INSERT INTO tentativas_fome (id_usuario, pontos, extra) VALUES (:id_usuario, :pontos, :extra)');
       $stmt->execute(array(':id_usuario'=>$id, ':pontos' => $pontos, ':extra' => $tipoJogada));  
       ConexaoBD::getInstance()->commit();

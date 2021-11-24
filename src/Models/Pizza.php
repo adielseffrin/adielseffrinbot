@@ -294,9 +294,9 @@ class Pizza{
         $file = 'dados_comida.json';
         if(Pizza::$ingrediente !== null){
             if(Language::getLanguage() == "en"){
-                $text = Pizza::$ingrediente["message"];
+                $text = utf8_encode(Pizza::$ingrediente["message"]);
             }else{
-                $text = Pizza::$ingrediente["mensagem"];
+                $text = utf8_encode(Pizza::$ingrediente["mensagem"]);
             }
               
             file_put_contents($file, json_encode(array("comida" => Pizza::$ingrediente["descricao"],"url_imagem" => Pizza::$ingrediente["url_imagem"], "time" => date('Y-m-d H:i:s'))));

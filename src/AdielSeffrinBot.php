@@ -12,6 +12,7 @@ use AdielSeffrinBot\Models\Twitch;
 use AdielSeffrinBot\Models\Usuario;
 use AdielSeffrinBot\Models\ConexaoBD;
 use AdielSeffrinBot\Models\Pizza;
+ use AdielSeffrinBot\Services\SocketClient;
 
 use AdielSeffrinBot\Models\Language;
 use AdielSeffrinBot\Models\Mensagens;
@@ -24,7 +25,7 @@ class AdielSeffrinBot
   private $config;
   private $connection;
   protected $client;
-  protected $socketConnector;
+  private $socketClient;
   private $twitter;
   private $twitch;
   private $write;
@@ -64,11 +65,6 @@ class AdielSeffrinBot
         });
       });
 
-      /*
-      Front
-      Lista de ingredientes
-      mudar nick
-      */
       $tempoPizza = 301;
       Pizza::$write = $write;
       $this->client->addPeriodicTimer($tempoPizza, function () use ($write) {
@@ -87,17 +83,22 @@ class AdielSeffrinBot
 
     $this->client->run($this->connection);
   }
-
+  
   function onJoin($connection, $write)
   {
     Language::startLanguage();
     $write->ircJoin($_SERVER['TWITCH_CHANNEL']);
     $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], Mensagens::getMensagem('onJoin',null));
     
-    //$this->debugando = new Debugando();
     $this->twitter = new Twitter();
     $this->twitch = new Twitch();
-    
+    try{
+      $this->socketClient = new SocketClient();
+      
+    }catch(Exception $e){
+      var_dump($e);
+    }
+    $this->socketClient->run();
   }
 
   function onMessage($message, $write, $connection, $logger)
@@ -230,6 +231,23 @@ class AdielSeffrinBot
               comandosPvt($message, null, $write, $_SERVER['TWITCH_CHANNEL'],  $this->pessoasNoChat[$index]);
             }
             break;
+          case "!vaguinha":
+          case "!job":
+            $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Ei você dev JR! Tá procurando uma vaga para trabalhar com .NET, C# e Javascript? (Angular é bônus). Se você é pró-ativo, sabe trabalhar em equipe, consegue trabalhar de forma remota (e as vezes independente). Chega no sussurro! (Diferenciais: Inglês, Git, Docker, SGBD, Angular e DevExpress)");
+            break;
+          case "!wsdisc":
+            $this->socketClient->disconnect();
+            break;
+          case "!wsmsg":
+            var_dump($stack);
+            if(empty($stack[1]))
+              $this->socketClient->sendMessage('Olá');
+            else{
+              unset($stack[0]);
+              $msg = implode(" ", $stack);
+              $this->socketClient->sendMessage($msg);
+            }
+            break;
         };
       }
     }
@@ -251,7 +269,7 @@ class AdielSeffrinBot
           }
         }
       }else{
-        throw new Excpetion("Não consegui acessar a twitch!\n".json_encode($dados_twitch));
+        throw new Exception("Não consegui acessar a twitch!\n".json_encode($dados_twitch));
       }
       array_push($this->pessoasNoChat,array('user' => $username, 'object'=> $user));
       $index = array_search($username,array_column($this->pessoasNoChat, 'user'));
