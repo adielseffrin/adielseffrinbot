@@ -52,7 +52,7 @@ class Fome{
   }
 
 
-  public function jogar($id){
+  public function jogar($user){
     $pontos = 0;
     $ehComprada = false;
     try{
@@ -65,12 +65,12 @@ class Fome{
       }elseif($this->temExtra){
         $tipoJogada = 1;
         $stmt = ConexaoBD::getInstance()->prepare('UPDATE tentativas_fome_extras SET quantidade = quantidade - 1 WHERE id_usuario = :id_usuario');
-        $stmt->execute(array(':id_usuario'=>$id)); 
+        $stmt->execute(array(':id_usuario'=>$user->getId())); 
         $this->jogadasExtras--;
       }else{
         $tipoJogada = 1;
         $stmt = ConexaoBD::getInstance()->prepare('UPDATE tentativas_fome_comprada SET quantidade = quantidade - 1 WHERE id_usuario = :id_usuario');
-        $stmt->execute(array(':id_usuario'=>$id)); 
+        $stmt->execute(array(':id_usuario'=>$user->getId())); 
         $this->jogadasCompradas--;
         $ehComprada = true;
       }
@@ -81,8 +81,15 @@ class Fome{
       }
 
       $stmt = ConexaoBD::getInstance()->prepare('INSERT INTO tentativas_fome (id_usuario, pontos, extra) VALUES (:id_usuario, :pontos, :extra)');
-      $stmt->execute(array(':id_usuario'=>$id, ':pontos' => $pontos, ':extra' => $tipoJogada));  
+      $stmt->execute(array(':id_usuario'=>$user->getId(), ':pontos' => $pontos, ':extra' => $tipoJogada));  
       ConexaoBD::getInstance()->commit();
+      $body = array(
+        "info" => array(
+          "pontos" => $pontos
+        )
+      );
+      $request = new Request();
+      $data = $request->httpPost("https://api.adielseffr.in/pizza/notificate",$body,null,array("twitch_id"=>$user->getTwitchId()));
     }catch(PDOExecption $e) {
       ConexaoBD::getInstance()->rollback();
       print "Error!: " . $e->getMessage() . "</br>";

@@ -889,16 +889,16 @@
         },
         {
             "name": "amphp/websocket",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/websocket.git",
-                "reference": "6752ecfcb4deba23b95ab3fbd0d427326fcac564"
+                "reference": "d0e61e3e34ac09ec230ae0eff2b8beaf8f83a8f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/websocket/zipball/6752ecfcb4deba23b95ab3fbd0d427326fcac564",
-                "reference": "6752ecfcb4deba23b95ab3fbd0d427326fcac564",
+                "url": "https://api.github.com/repos/amphp/websocket/zipball/d0e61e3e34ac09ec230ae0eff2b8beaf8f83a8f9",
+                "reference": "d0e61e3e34ac09ec230ae0eff2b8beaf8f83a8f9",
                 "shasum": ""
             },
             "require": {
@@ -956,7 +956,7 @@
             ],
             "support": {
                 "issues": "https://github.com/amphp/websocket/issues",
-                "source": "https://github.com/amphp/websocket/tree/v1.0.1"
+                "source": "https://github.com/amphp/websocket/tree/v1.0.2"
             },
             "funding": [
                 {
@@ -964,7 +964,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-11-13T05:54:54+00:00"
+            "time": "2021-10-26T14:32:35+00:00"
         },
         {
             "name": "amphp/websocket-client",
@@ -1619,6 +1619,7 @@
                 "issues": "https://github.com/indigophp/hash-compat/issues",
                 "source": "https://github.com/indigophp/hash-compat/tree/master"
             },
+            "abandoned": true,
             "time": "2015-08-22T07:03:35+00:00"
         },
         {

@@ -228,7 +228,13 @@ class Pizza{
         }
         $plural = '';
         if($quantidadeColetada > 1) $plural='s';
-        // $text = "@".$objUser->getNick()." coletou {$quantidadeColetada} {$ingredienteDescricao}{$plural}!";
+        $body = array(
+            "ingredientes" => array(
+              array("ingrediente_id" => $ingredienteId, "quantidade"=> $quantidadeColetada),
+            )
+          );
+          $request = new Request();
+          $data = $request->httpPost("https://api.adielseffr.in/pizza/notificate",$body,null,array("twitch_id"=>$objUser->getTwitchId()));
         //TODO check ingrer description for english
         $text = Mensagens::getMensagem('onGetIngredient',array(
             ':nick'=>$objUser->getNick(),
@@ -254,6 +260,18 @@ class Pizza{
             $pontos = Pizza::jogar($objUser);
             $text = "@".$objUser->getNick()." criou uma pizza de ".utf8_encode(Pizza::$receita['descricao']) ." deliciosa! Ganhou $pontos pontos!!";
             Pizza::$write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], $text);
+            $ingrTemp = array();
+            foreach(Pizza::$id_ingredientes as $val){
+                array_push($ingrTemp, array("ingrediente_id" => $val, "quantidade"=> -1));
+            }
+            $body = array(
+                "info" => array(
+                  "pontos" => $pontos
+                ),
+                "ingredientes" => $ingrTemp
+              );
+              $request = new Request();
+              $data = $request->httpPost("https://api.adielseffr.in/pizza/notificate",$body,null,array("twitch_id"=>$objUser->getTwitchId()));
         }else{
             $text = "Ei @".$objUser->getNick()." ainda faltam alguns ingredientes para fazer uma pizza de ".Pizza::$receita['descricao'] ."...";
             Pizza::$write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], $text);
@@ -300,18 +318,17 @@ class Pizza{
             }
               
             file_put_contents($file, json_encode(array("comida" => Pizza::$ingrediente["descricao"],"url_imagem" => Pizza::$ingrediente["url_imagem"], "time" => date('Y-m-d H:i:s'))));
-            $data = array("comida" => Pizza::$ingrediente["descricao"],"url_imagem" => Pizza::$ingrediente["url_imagem"]);
+            $data = array("comida" => utf8_encode(Pizza::$ingrediente["descricao"]),"url_imagem" => Pizza::$ingrediente["url_imagem"]);
             $header = array("time" => date('Y-m-d H:i:s'), 'type'=> 'pizza');
             $mensagem = array('header' => $header, 'data' => $data);
             file_put_contents('dados_tela.json', json_encode($mensagem));
         }
         else{
             if(Language::getLanguage() == "en"){
-                $desc = Pizza::$receita["descricao"];
+                $desc = utf8_encode(Pizza::$receita["descricao"]);
             }else{
-                $desc = Pizza::$receita["descricao"];
+                $desc = utf8_encode(Pizza::$receita["descricao"]);
             }
-            var_dump(Pizza::$receita);
             $text =  Mensagens::getMensagem('onNewRecipe',array(':desc'=>$desc));
         }
 

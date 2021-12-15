@@ -133,6 +133,7 @@ function comandosBD($message, $write, $canal,$usuarioArray){
       case "!🛍":
       case "!bag":
         $userObj = $usuarioArray['object'];
+        Pizza::$write = $write;
         Pizza::listarIngredientes($userObj);
         break;
     }

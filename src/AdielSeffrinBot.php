@@ -12,10 +12,9 @@ use AdielSeffrinBot\Models\Twitch;
 use AdielSeffrinBot\Models\Usuario;
 use AdielSeffrinBot\Models\ConexaoBD;
 use AdielSeffrinBot\Models\Pizza;
- use AdielSeffrinBot\Services\SocketClient;
-
 use AdielSeffrinBot\Models\Language;
 use AdielSeffrinBot\Models\Mensagens;
+use AdielSeffrinBot\Models\Request;
 
 require_once 'comandos.php';
 
@@ -25,7 +24,6 @@ class AdielSeffrinBot
   private $config;
   private $connection;
   protected $client;
-  private $socketClient;
   private $twitter;
   private $twitch;
   private $write;
@@ -92,13 +90,7 @@ class AdielSeffrinBot
     
     $this->twitter = new Twitter();
     $this->twitch = new Twitch();
-    try{
-      $this->socketClient = new SocketClient();
-      
-    }catch(Exception $e){
-      var_dump($e);
-    }
-    $this->socketClient->run();
+  
   }
 
   function onMessage($message, $write, $connection, $logger)
@@ -235,18 +227,8 @@ class AdielSeffrinBot
           case "!job":
             $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Ei você dev JR! Tá procurando uma vaga para trabalhar com .NET, C# e Javascript? (Angular é bônus). Se você é pró-ativo, sabe trabalhar em equipe, consegue trabalhar de forma remota (e as vezes independente). Chega no sussurro! (Diferenciais: Inglês, Git, Docker, SGBD, Angular e DevExpress)");
             break;
-          case "!wsdisc":
-            $this->socketClient->disconnect();
-            break;
-          case "!wsmsg":
-            var_dump($stack);
-            if(empty($stack[1]))
-              $this->socketClient->sendMessage('Olá');
-            else{
-              unset($stack[0]);
-              $msg = implode(" ", $stack);
-              $this->socketClient->sendMessage($msg);
-            }
+          case "!au":
+            $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ");
             break;
         };
       }
