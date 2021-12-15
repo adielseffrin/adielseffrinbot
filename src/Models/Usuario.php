@@ -34,6 +34,10 @@ class Usuario{
       return $this->id;
     }
 
+    public function getTwitchId(){
+      return $this->twitchId;
+    }
+
     public function verificarExistenciaUsuario(){
         $stmt = ConexaoBD::getInstance()->prepare('SELECT id FROM usuarios WHERE nick = :nick');
         $stmt->execute(array(':nick'=>$this->nick));
@@ -87,7 +91,7 @@ class Usuario{
     }
 
     public function jogar(){
-      return $this->fome->jogar($this->id);
+      return $this->fome->jogar($this);
     }
 
     public function addFome($quantidade){
