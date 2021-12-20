@@ -260,7 +260,8 @@ class Pizza{
             $stmt = ConexaoBD::getInstance()->prepare("update ingredientes_usuario set quantidade = quantidade - 1 where id_usuario = :id_usuario and id_ingrediente in ({$ids});");
             $stmt->execute(array(':id_usuario'=>$objUser->getId()));
             $pontos = Pizza::jogar($objUser);
-            $text = "@".$objUser->getNick()." criou uma pizza de ".utf8_encode(Pizza::$receita['descricao']) ." deliciosa! Ganhou $pontos pontos!!";
+            //TODO checkmsg
+            $text = "@".$objUser->getNick()." criou uma pizza de ".Pizza::$receita['descricao']." deliciosa! Ganhou $pontos pontos!!";
             Pizza::$write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], $text);
             $ingrTemp = array();
             foreach(Pizza::$id_ingredientes as $val){
@@ -288,10 +289,11 @@ class Pizza{
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         $lista = [];
         foreach($result as $key => $val){
+            //TODO checkmsg
             if(Language::getLanguage() == "en"){
                 array_push($lista, "{$val['description']}[{$val['quantidade']}]");
             }else{
-                array_push($lista, utf8_encode($val['descricao'])."[{$val['quantidade']}]");
+                array_push($lista, $val['descricao']."[{$val['quantidade']}]");
             }
            
           }
@@ -314,24 +316,27 @@ class Pizza{
         //procurar mais imagens
         // descobrir pq não rola 2 arquivos na mesma porta
         $file = 'dados_comida.json';
+        //TODO checkmsg
         if(Pizza::$ingrediente !== null){
             if(Language::getLanguage() == "en"){
-                $text = utf8_encode(Pizza::$ingrediente["message"]);
+                $text = Pizza::$ingrediente["message"];
             }else{
-                $text = utf8_encode(Pizza::$ingrediente["mensagem"]);
+                $text = Pizza::$ingrediente["mensagem"];
             }
               
             file_put_contents($file, json_encode(array("comida" => Pizza::$ingrediente["descricao"],"url_imagem" => Pizza::$ingrediente["url_imagem"], "time" => date('Y-m-d H:i:s'))));
-            $data = array("comida" => utf8_encode(Pizza::$ingrediente["descricao"]),"url_imagem" => Pizza::$ingrediente["url_imagem"]);
+            //TODO checkmsg
+            $data = array("comida" => Pizza::$ingrediente["descricao"],"url_imagem" => Pizza::$ingrediente["url_imagem"]);
             $header = array("time" => date('Y-m-d H:i:s'), 'type'=> 'pizza');
             $mensagem = array('header' => $header, 'data' => $data);
             file_put_contents('dados_tela.json', json_encode($mensagem));
         }
         else{
+            //TODO checkmsg
             if(Language::getLanguage() == "en"){
-                $desc = utf8_encode(Pizza::$receita["descricao"]);
+                $desc = Pizza::$receita["descricao"];
             }else{
-                $desc = utf8_encode(Pizza::$receita["descricao"]);
+                $desc = Pizza::$receita["descricao"];
             }
             $text =  Mensagens::getMensagem('onNewRecipe',array(':desc'=>$desc));
         }
