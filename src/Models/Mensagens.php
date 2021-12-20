@@ -145,7 +145,7 @@ class Mensagens{
         "kicked out"
       ],
       'banWithReason' => "@{:nick} was banned because {:motivo}",
-      'generalAsnwers' => [
+      'generalAnswers' => [
         "@{:nick}... It depends...",
         "@{:nick}... Maybe...",
         "@{:nick}... Maybe yes, maybe not... I'm not sure",

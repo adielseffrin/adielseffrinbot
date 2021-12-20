@@ -211,7 +211,7 @@ class AdielSeffrinBot
                 comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL'], $this->pessoasNoChat[$index]);
               }
               break;
-              case "!mudaidioma":
+          case "!mudaidioma":
             comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!sechama":
@@ -222,10 +222,6 @@ class AdielSeffrinBot
               $index = $this->verificaUserNoChat($oldNick);
               comandosPvt($message, null, $write, $_SERVER['TWITCH_CHANNEL'],  $this->pessoasNoChat[$index]);
             }
-            break;
-          case "!vaguinha":
-          case "!job":
-            $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "Ei você dev JR! Tá procurando uma vaga para trabalhar com .NET, C# e Javascript? (Angular é bônus). Se você é pró-ativo, sabe trabalhar em equipe, consegue trabalhar de forma remota (e as vezes independente). Chega no sussurro! (Diferenciais: Inglês, Git, Docker, SGBD, Angular e DevExpress)");
             break;
           case "!au":
             $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ");
@@ -240,7 +236,7 @@ class AdielSeffrinBot
     if($index === false){
       $user = new Usuario($username);
       $dados_twitch = $this->twitch->getUserDetailsByLogin($username);
-      if(!$dados_twitch['error']){
+      if(!array_key_exists('error',$dados_twitch)){
         if(!$user->verificarExistenciaUsuario()){
           $user->cadastrarUsuario();
         }else{

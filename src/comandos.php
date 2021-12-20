@@ -63,7 +63,7 @@ function perguntas($message, $write, $canal)
     } elseif (strpos($mesagemLower, ' qual ') > 0 || strpos($mesagemLower, ' which ') > 0) {
       $write->ircPrivmsg($canal, Mensagens::getMensagemArray('whichAnswers',rand(0, count(Mensagens::getMensagem('whichAnswers',null)) - 1), array(':nick'=>$username)));
     } else {
-      $write->ircPrivmsg($canal, Mensagens::getMensagemArray('generalAsnwers',rand(0, count(Mensagens::getMensagem('generalAsnwers',null)) - 1), array(':nick'=>$username)));
+      $write->ircPrivmsg($canal, Mensagens::getMensagemArray('generalAnswers',rand(0, count(Mensagens::getMensagem('generalAnswers',null)) - 1), array(':nick'=>$username)));
     }
   } else {
     $write->ircPrivmsg($canal, Mensagens::getMensagem('noQuestion',array(':nick'=>$username)));
