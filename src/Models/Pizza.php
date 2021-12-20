@@ -233,8 +233,10 @@ class Pizza{
               array("ingrediente_id" => $ingredienteId, "quantidade"=> $quantidadeColetada),
             )
           );
-          $request = new Request();
-          $data = $request->httpPost("https://api.adielseffr.in/pizza/notificate",$body,null,array("twitch_id"=>$objUser->getTwitchId()));
+          if($_SERVER['USE_API'] == 'true'){
+            $request = new Request();
+            $data = $request->httpPost("https://api.adielseffr.in/pizza/notificate",$body,null,array("twitch_id"=>$objUser->getTwitchId()));
+          }
         //TODO check ingrer description for english
         $text = Mensagens::getMensagem('onGetIngredient',array(
             ':nick'=>$objUser->getNick(),
@@ -270,8 +272,10 @@ class Pizza{
                 ),
                 "ingredientes" => $ingrTemp
               );
-              $request = new Request();
-              $data = $request->httpPost("https://api.adielseffr.in/pizza/notificate",$body,null,array("twitch_id"=>$objUser->getTwitchId()));
+              if($_SERVER['USE_API'] == 'true'){
+                $request = new Request();
+                $data = $request->httpPost("https://api.adielseffr.in/pizza/notificate",$body,null,array("twitch_id"=>$objUser->getTwitchId()));
+              }
         }else{
             $text = "Ei @".$objUser->getNick()." ainda faltam alguns ingredientes para fazer uma pizza de ".Pizza::$receita['descricao'] ."...";
             Pizza::$write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], $text);

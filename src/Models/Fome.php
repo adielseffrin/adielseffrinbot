@@ -88,8 +88,10 @@ class Fome{
           "pontos" => $pontos
         )
       );
-      $request = new Request();
-      $data = $request->httpPost("https://api.adielseffr.in/pizza/notificate",$body,null,array("twitch_id"=>$user->getTwitchId()));
+      if($_SERVER['USE_API'] == 'true'){
+        $request = new Request();
+        $data = $request->httpPost("https://api.adielseffr.in/pizza/notificate",$body,null,array("twitch_id"=>$user->getTwitchId()));
+      }
     }catch(PDOExecption $e) {
       ConexaoBD::getInstance()->rollback();
       print "Error!: " . $e->getMessage() . "</br>";
