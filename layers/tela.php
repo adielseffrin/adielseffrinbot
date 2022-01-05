@@ -3,7 +3,6 @@
     header('Content-Type: text/event-stream');
     header('Cache-Control: no-cache');
     header("Access-Control-Allow-Origin: *");
-    //header('Access-Control-Allow-Credentials: false');
 
     $response = array("success"=>true, "msg"=>"", "data"=>"");
     $tempoGlobal = "";
@@ -12,7 +11,6 @@
     // variável de comparação
     // utilizada para verificar alterações de estado nos dados
     $ultimaExibicao = null;
-
     // laço onde acontece a vida útil
     while (true) {
 
@@ -28,6 +26,7 @@
             $tipo = $header['type'];
             $interval = 0;
             $executar = false;
+            
             
             switch($tipo){
                 case 'ranking':
@@ -50,6 +49,13 @@
                     $dados["temImagem"] = file_exists($imagem);
                     $executar = true;
                 break;
+                case 'banana':
+                    @file_put_contents('../dados_tela.json', '');
+                    $img_number = rand(1,7);
+                    $dados["url_imagem"] = 'banana_'.$img_number.'.jpeg';
+                    
+                    $executar = true;
+                    break;
             }
             
             if ($executar) {
