@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
   // variáveis globais
   const conteudoPizza = document.querySelector('.content-pizza');
+  const conteudoBanana = document.querySelector('.content-banana');
   const conteudoRanking = document.querySelector('.ranking');
   const conteudoDebug = document.querySelector('.debug');
 
@@ -63,6 +64,15 @@ document.addEventListener("DOMContentLoaded", function() {
           conteudoRanking.style.visibility = "visible";
           setTimeout(function(){conteudoRanking.style.visibility = "hidden"},10000)
         break;
+        case 'banana':
+          let img = document.createElement('img');
+          img.src = "./images/banana/"+dados.url_imagem;
+          img.className = '';
+          conteudoBanana.appendChild(img);
+          setTimeout(()=> {
+            conteudoBanana.innerHTML = ''; 
+          },7500)
+          break;
       }
     }
   }

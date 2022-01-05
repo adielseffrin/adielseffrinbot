@@ -226,6 +226,15 @@ class AdielSeffrinBot
           case "!au":
             $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ");
             break;
+          case "!🍌":
+          case "!banana":
+          case "!adoteobanana":
+            $header = array("time" => date('Y-m-d H:i:s'), 'type'=> 'banana');
+            $mensagem = array('header' => $header, 'data' => null);
+            file_put_contents('dados_tela.json', json_encode($mensagem));
+            $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'],"Oi gente, eu sou o Banana 🍌! Fui resgatado por esse humano aí e estou a procura de um novo lar para poder correr e brincar. Sou muito brincalhão, ativo e serelepe. Tenho entre 7 e 9 meses e estou em Joinville/SC (mas posso ir até Florianópolis, Blumenau, Curitiba e região. #adoteobanana");
+            $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ");
+            break;
         };
       }
     }
