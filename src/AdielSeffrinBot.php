@@ -235,6 +235,9 @@ class AdielSeffrinBot
             $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'],"Oi gente, eu sou o Banana 🍌! Fui resgatado por esse humano aí e estou a procura de um novo lar para poder correr e brincar. Sou muito brincalhão, ativo e serelepe. Tenho entre 7 e 9 meses e estou em Joinville/SC (mas posso ir até Florianópolis, Blumenau, Curitiba e região. #adoteobanana");
             $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ OhMyDog CorgiDerp RalpherZ FrankerZ");
             break;
+          case "!records":
+            comandosBD($message, $write, $_SERVER['TWITCH_CHANNEL'], null);
+            break;
         };
       }
     }
@@ -256,7 +259,7 @@ class AdielSeffrinBot
           }
         }
       }else{
-        throw new Exception("Não consegui acessar a twitch!\n".json_encode($dados_twitch));
+        throw new \Exception("Não consegui acessar a twitch!\n".json_encode($dados_twitch));
       }
       array_push($this->pessoasNoChat,array('user' => $username, 'object'=> $user));
       $index = array_search($username,array_column($this->pessoasNoChat, 'user'));

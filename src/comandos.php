@@ -3,6 +3,7 @@ use AdielSeffrinBot\Models\Pizza;
 use AdielSeffrinBot\Models\Usuario;
 use AdielSeffrinBot\Models\Mensagens;
 use AdielSeffrinBot\Models\Language;
+use AdielSeffrinBot\Models\Records;
 
 function ban($message, $write, $canal)
 {
@@ -135,6 +136,15 @@ function comandosBD($message, $write, $canal,$usuarioArray){
         $userObj = $usuarioArray['object'];
         Pizza::$write = $write;
         Pizza::listarIngredientes($userObj);
+        break;
+      case "!records":
+        $records = new Records();
+        $texto = $records->getRecords();
+        
+        $write->ircPrivmsg($canal, $texto['dia']);
+        $write->ircPrivmsg($canal, $texto['mes']);
+        $write->ircPrivmsg($canal, $texto['ano']);
+        $write->ircPrivmsg($canal, $texto['all']);
         break;
     }
   }elseif(count($stack) == 2){
