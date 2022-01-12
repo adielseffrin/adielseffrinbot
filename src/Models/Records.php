@@ -93,44 +93,45 @@ class Records{
         $texto['dia'] = "Recordes de hoje:";
         
         $texto['dia']  .= " # Tipo mais pontos (".array_values($diarioMax)[0]->pontos."):";
-        foreach(array_values($diarioMax)[0]->usuarios as $r){
-            $texto['dia'] .= " {$r->nick} em {$r->data_tentativa}";
+        foreach($diarioMax as $r){
+            $texto['dia'] .= " {$r->usuarios[0]->nick} em ".date('d/m/Y', strtotime($r->usuarios[0]->data_tentativa));
         };
         
         $texto['dia']  .= " # Tipo menos pontos (".array_values($diarioMin)[0]->pontos."):";
-        foreach(array_values($diarioMin)[0]->usuarios as $r){
-            $texto['dia'] .= " {$r->nick} em {$r->data_tentativa}";
+        foreach($diarioMin as $r){
+            $texto['dia'] .= " {$r->usuarios[0]->nick} em ".date('d/m/Y', strtotime($r->usuarios[0]->data_tentativa));
         };
 
         $texto['mes'] = "Recordes do mês:";
         $texto['mes']  .= " # Tipo mais pontos (".array_values($mensalMax)[0]->pontos."):";
-        foreach(array_values($mensalMax)[0]->usuarios as $r){
-            $texto['mes'] .= " {$r->nick} em {$r->data_tentativa}";
+        foreach($mensalMax as $r){
+            $texto['mes'] .= " {$r->usuarios[0]->nick} em ".date('d/m/Y', strtotime($r->usuarios[0]->data_tentativa));
         };
         $texto['mes']  .= " # Tipo menos pontos (".array_values($mensalMin)[0]->pontos."):";
-        foreach(array_values($mensalMin)[0]->usuarios as $r){
-            $texto['mes'] .= " {$r->nick} em {$r->data_tentativa}";
+        foreach($mensalMin as $r){
+            $texto['mes'] .= " {$r->usuarios[0]->nick} em ".date('d/m/Y', strtotime($r->usuarios[0]->data_tentativa));
         };
 
         $texto['ano'] = " Recordes do ano:";
         $texto['ano'] .= " # Tipo mais pontos (".array_values($anualMax)[0]->pontos."):";
-        foreach(array_values($anualMax)[0]->usuarios as $r){
-            $texto['ano'] .= " {$r->nick} em {$r->data_tentativa}";
+        foreach($anualMax as $r){
+            $texto['ano'] .= " {$r->usuarios[0]->nick} em ".date('d/m/Y', strtotime($r->usuarios[0]->data_tentativa));
         };
         $texto['ano'] .= " # Tipo menos pontos (".array_values($anualMin)[0]->pontos."):";
-        foreach(array_values($anualMax)[0]->usuarios as $r){
-            $texto['ano'] .= " {$r->nick} em {$r->data_tentativa}";
+        foreach($anualMax as $r){
+            $texto['ano'] .= " {$r->usuarios[0]->nick} em ".date('d/m/Y', strtotime($r->usuarios[0]->data_tentativa));
         };
         
         $texto['all'] = " Recordes de todos os tempos:";
         $texto['all'] .= " # Tipo mais pontos (".array_values($geralMax)[0]->pontos."):";
-        foreach(array_values($geralMax)[0]->usuarios as $r){
-            $texto['all'] .= " {$r->nick} em {$r->data_tentativa}";
+        var_dump($geralMax);
+        foreach($geralMax as $r){
+            $texto['all'] .= " {$r->usuarios[0]->nick} em ".date('d/m/Y', strtotime($r->usuarios[0]->data_tentativa));
         };
         $texto['all'] .= " # Tipo menos pontos (".array_values($geralMin)[0]->pontos."):";
         
-        foreach(array_values($geralMin)[0]->usuarios as $r){
-            $texto['all'] .= " {$r->nick} em {$r->data_tentativa}";
+        foreach($geralMin as $r){
+            $texto['all'] .= " {$r->usuarios[0]->nick} em ".date('d/m/Y', strtotime($r->usuarios[0]->data_tentativa));
         };
 
         return $texto;
