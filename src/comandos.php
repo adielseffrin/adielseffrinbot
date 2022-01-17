@@ -239,6 +239,16 @@ function comandosPvt($message, $twitter, $write, $canal, $usuarioArray = null)
         $userObj->removesub();
         $write->ircPrivmsg($canal, "Ei @adielseffrin, @{$userObj->getNick()} nos deixou 😥");
       break;
+      case "!addstreamer":
+        $userObj = $usuarioArray['object'];
+        $userObj->addStreamer();
+        $write->ircPrivmsg($canal, "Ei @adielseffrin, se prepara para acompanhar @{$userObj->getNick()} pois agora sei que é streamer! 📺");
+        break;
+      case "!removestreamer":
+          $userObj = $usuarioArray['object'];
+          $userObj->removeStreamer();
+          $write->ircPrivmsg($canal, "Ei @adielseffrin, é uma pena mas acho que @{$userObj->getNick()} não faz mais lives! 😢");
+        break;
       case "!sechama":
       case "!renomear":
         $userObj = $usuarioArray['object'];

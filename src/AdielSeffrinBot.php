@@ -15,6 +15,7 @@ use AdielSeffrinBot\Models\Pizza;
 use AdielSeffrinBot\Models\Language;
 use AdielSeffrinBot\Models\Mensagens;
 use AdielSeffrinBot\Models\Request;
+use AdielSeffrinBot\Models\Configs;
 
 require_once 'comandos.php';
 
@@ -85,6 +86,7 @@ class AdielSeffrinBot
   function onJoin($connection, $write)
   {
     Language::startLanguage();
+    Configs::loadConfigs();
     $write->ircJoin($_SERVER['TWITCH_CHANNEL']);
     $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], Mensagens::getMensagem('onJoin',null));
     
@@ -163,7 +165,7 @@ class AdielSeffrinBot
             if($index === false){
               $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], Mensagens::getMensagem('onLurk',array(":nick" => $username)));
               array_push($this->ausenciaArray,array('user' => $username, 'event' => 'lurk'));
-              var_dump($this->ausenciaArray);
+              //var_dump($this->ausenciaArray);
             }
             break;
           case "!voltei":
@@ -205,6 +207,8 @@ class AdielSeffrinBot
           case "!addsub":
           case "!testasub":
           case "!removesub":
+          case "!addstreamer":
+          case "!removestreamer":
               if(!empty($stack[1])){
                 $username = $stack[1];
                 $index = $this->verificaUserNoChat($username);
@@ -237,6 +241,14 @@ class AdielSeffrinBot
             break;
           case "!records":
             comandosBD($message, $write, $_SERVER['TWITCH_CHANNEL'], null);
+            break;
+          case "!fdaciuk":
+            $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "!sh fdaciuk");
+            $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'],"Se o @fdaciuk não estivem em live, cola no discord que é sucesso! -> https://discord.gg/x99eevqaHd");
+            break;
+          case "!mmillecm":
+            $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], "!sh mmillecm");
+            $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'],"Se a @mmillecm não estivem em live, cola no discord que é sucesso! -> https://discord.gg/f2dFDn4J");
             break;
         };
       }
@@ -291,6 +303,7 @@ class AdielSeffrinBot
     }
   }
 
+  //TODO não está atualizando a lista de subs
   private function atualizaListaSubs($subs){
     echo PHP_EOL."### Atualizando lista de subs... ###".PHP_EOL;
     $subsNames = array();

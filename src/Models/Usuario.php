@@ -9,6 +9,7 @@ class Usuario{
     private $id;
     private $fome;
     private $sub;
+    private $streamer;
     private $twitchId;
 
     static $ranking = array();
@@ -115,12 +116,38 @@ class Usuario{
       } 
     }
 
+    public function addStreamer(){
+      try{
+        ConexaoBD::getInstance()->beginTransaction();
+        $stmt = ConexaoBD::getInstance()->prepare('UPDATE usuarios SET streamer = 1 WHERE id = :id');
+        $stmt->execute(array(':id'=>$this->id));
+        $this->sub = 1;
+        ConexaoBD::getInstance()->commit();
+      }catch(PDOExecption $e) {
+        ConexaoBD::getInstance()->rollback();
+        print "Error!: " . $e->getMessage() . "</br>";
+      } 
+    }
+
     public function removeSub(){
       try{
         ConexaoBD::getInstance()->beginTransaction();
         $stmt = ConexaoBD::getInstance()->prepare('UPDATE usuarios SET sub = 0 WHERE id = :id');
         $stmt->execute(array(':id'=>$this->id));
         $this->sub = 0;
+        ConexaoBD::getInstance()->commit();
+      }catch(PDOExecption $e) {
+        ConexaoBD::getInstance()->rollback();
+        print "Error!: " . $e->getMessage() . "</br>";
+      } 
+    }
+
+    public function removeStreamer(){
+      try{
+        ConexaoBD::getInstance()->beginTransaction();
+        $stmt = ConexaoBD::getInstance()->prepare('UPDATE usuarios SET streamer = 0 WHERE id = :id');
+        $stmt->execute(array(':id'=>$this->id));
+        $this->sub = 1;
         ConexaoBD::getInstance()->commit();
       }catch(PDOExecption $e) {
         ConexaoBD::getInstance()->rollback();

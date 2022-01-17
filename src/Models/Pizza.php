@@ -130,18 +130,18 @@ class Pizza{
         if(!$ingredientesExistentes){
             $ingredientesFaltantes = $id_ingredientes;
         }else{
-            var_dump($ingredientesExistentes);
+            //var_dump($ingredientesExistentes);
             $ingredientesExistentes = array_map(function($e){return $e[0];},$ingredientesExistentes); 
             $ingredientesFaltantes = array_diff($id_ingredientes,$ingredientesExistentes);
         }
-        echo "=======================".PHP_EOL;
-        var_dump($objUser->getId());
-        var_dump($id_ingredientes);
-        echo "=======================".PHP_EOL;
-        var_dump($ingredientesExistentes);
-        echo "=======================".PHP_EOL;
-        var_dump($ingredientesFaltantes);
-        echo "=======================".PHP_EOL;
+        // echo "=======================".PHP_EOL;
+        // var_dump($objUser->getId());
+        // var_dump($id_ingredientes);
+        // echo "=======================".PHP_EOL;
+        // var_dump($ingredientesExistentes);
+        // echo "=======================".PHP_EOL;
+        // var_dump($ingredientesFaltantes);
+        // echo "=======================".PHP_EOL;
         //preve dif null
         try{
             ConexaoBD::getInstance()->beginTransaction();
@@ -344,7 +344,21 @@ class Pizza{
         if(Language::getLanguage() == "en"){
             $compl = " (Type !pizza)";
         }else{
-            $compl = " (Digite !pizza)";
+            $actions = [
+                " (Digite !pizza)", 
+                " (Escreva !pizza)", 
+                " (Chama na !pizza)", 
+                " (Comando !pizza)", 
+                " [Digite !pizza]", 
+                " [Escreva !pizza]", 
+                " [Chama na !pizza]", 
+                " [Comando !pizza]", 
+                " [Digite !pizza]", 
+                " [Escreva !pizza]", 
+                " [Chama na !pizza]", 
+                " [Comando !pizza]"
+            ];
+            $compl = $actions[rand(0,count($actions)-1)];
         }
 
         Pizza::$write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], $text.$compl);

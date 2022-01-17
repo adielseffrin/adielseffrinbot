@@ -124,7 +124,6 @@ class Records{
         
         $texto['all'] = " Recordes de todos os tempos:";
         $texto['all'] .= " # Tipo mais pontos (".array_values($geralMax)[0]->pontos."):";
-        var_dump($geralMax);
         foreach($geralMax as $r){
             $texto['all'] .= " {$r->usuarios[0]->nick} em ".date('d/m/Y', strtotime($r->usuarios[0]->data_tentativa));
         };
