@@ -39,7 +39,7 @@ class JwtBot{
         }
        
         $jwt = JWT::encode($payload, base64_decode($this->key), 'HS256');
-        var_dump($jwt);
+//        var_dump($jwt);
         return $jwt;
     }
     

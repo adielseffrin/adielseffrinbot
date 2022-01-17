@@ -56,7 +56,7 @@ class Fome{
     $pontos = 0;
     $ehComprada = false;
     try{
-      
+     
       $temExtra = $this->jogadasExtras > 0;
       $tipoJogada = 0;
       ConexaoBD::getInstance()->beginTransaction();
@@ -74,10 +74,20 @@ class Fome{
         $this->jogadasCompradas--;
         $ehComprada = true;
       }
+      
       if($ehComprada){
-        $pontos = mt_rand (7, 12) + mt_rand (0, 99)/100;
+        $max_fome = intval(Configs::getConfig('fome_comprada_max'));
+        $pontos = mt_rand (7, $max_fome) + mt_rand (0, 99)/100;
+        if($pontos == $max_fome + 0.99){
+          Configs::setConfig('fome_comprada_max',$max_fome+1);
+        }
       }else{
-        $pontos = mt_rand (0, 9) + mt_rand (0, 99)/100;
+        $max_fome = intval(Configs::getConfig('fome_regular_max'));
+        $pontos = mt_rand (0, $max_fome) + mt_rand (0, 99)/100;
+        if($pontos == $max_fome + 0.99){
+          Configs::setConfig('fome_regular_max',$max_fome+1);
+          Configs::setConfig('fome_comprada_max',$max_fome+4);
+        }
       }
 
       $stmt = ConexaoBD::getInstance()->prepare('INSERT INTO tentativas_fome (id_usuario, pontos, extra) VALUES (:id_usuario, :pontos, :extra)');
@@ -100,9 +110,6 @@ class Fome{
   }
 
   public function addFome($id, $quantidade){
-    echo "========================".PHP_EOL;
-    var_dump($quantidade);
-    echo "========================".PHP_EOL;
     $this->quantidadeExtra($id);
     if(!$this->temRegistroExtra){
       $stmt = ConexaoBD::getInstance()->prepare('INSERT INTO tentativas_fome_extras (id_usuario, quantidade) VALUES (:id_usuario, :quantidade)');
