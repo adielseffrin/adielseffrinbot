@@ -77,7 +77,8 @@ class AdielSeffrinBot
 
     $this->client->on('irc.received', function ($m, $w, $c, $l) {
       if ($this->write == null) $this->write = $w;
-      $this->onMessage($m, $w, $c, $l);
+        $this->onMessage($m, $w, $c, $l);
+     
     });
 
     $this->client->run($this->connection);
@@ -100,8 +101,11 @@ class AdielSeffrinBot
     if ($message['command'] == 'PRIVMSG') {
       $comando = null;
       $stack = null;
-      $username = str_replace("@", "", $message['user']);
-     
+      if(isset($message['user']))
+        $username = str_replace("@", "", $message['user']);
+      else
+        $username = explode("!",$message['prefix'])[0];
+      
       $this->verificaUserNoChat($username);
       if (stripos($message['params']['text'], "!") === 0) {
         $mesagemLower = strtolower($message['params']['text']);
@@ -257,22 +261,23 @@ class AdielSeffrinBot
 
   public function verificaUserNoChat($username){
     $index = array_search($username,array_column($this->pessoasNoChat, 'user'));
+   
     if($index === false){
       $user = new Usuario($username);
-      $dados_twitch = $this->twitch->getUserDetailsByLogin($username);
-      if(!array_key_exists('error',$dados_twitch)){
-        if(!$user->verificarExistenciaUsuario()){
-          $user->cadastrarUsuario();
-        }else{
-          $user->carregarUsuario();
-          if($dados_twitch['data'][0]){
-            $user->setTwitchId($dados_twitch['data'][0]['id']);
-            $user->atualizaTwitchId();
-          }
-        }
+      if(!$user->verificarExistenciaUsuario()){
+        $user->cadastrarUsuario();
       }else{
-        throw new \Exception("Não consegui acessar a twitch!\n".json_encode($dados_twitch));
+        $user->carregarUsuario();
       }
+      $dados_twitch = $this->twitch->getUserDetailsByLogin($username);
+      if(array_key_exists('data',$dados_twitch) && count($dados_twitch['data']) > 0){
+        $user->setTwitchId($dados_twitch['data'][0]['id']);
+        $user->atualizaTwitchId();
+      }else{
+        var_dump("Não consegui acessar a twitch para o user {$username}!\n".json_encode($dados_twitch));
+      }
+      
+      
       array_push($this->pessoasNoChat,array('user' => $username, 'object'=> $user));
       $index = array_search($username,array_column($this->pessoasNoChat, 'user'));
     }

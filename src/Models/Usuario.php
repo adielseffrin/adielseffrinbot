@@ -62,8 +62,8 @@ class Usuario{
       $lastId = 0;
       try{
         ConexaoBD::getInstance()->beginTransaction();
-        $stmt = ConexaoBD::getInstance()->prepare('INSERT INTO usuarios (nick, twitch_id) VALUES (:nick, :twitch_id)');
-        $stmt->execute(array(':nick'=>$this->nick, ':twitch_id'=>$this->twitchId));
+        $stmt = ConexaoBD::getInstance()->prepare('INSERT INTO usuarios (nick) VALUES (:nick)');
+        $stmt->execute(array(':nick'=>$this->nick));
         $lastId = ConexaoBD::getInstance()->lastInsertId();
         ConexaoBD::getInstance()->commit();
       }catch(PDOExecption $e) {
