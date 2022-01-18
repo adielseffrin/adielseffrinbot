@@ -45,6 +45,11 @@ class Twitch{
     return $data;
   }
 
+  public function getStreamDetails(){
+    $url = "https://api.twitch.tv/helix/channels?broadcaster_id=89302205";
+    return $this->httpGet($url);
+  }
+
   public function getUserDetailsById($id){
     $url = "https://api.twitch.tv/helix/users?id=$id";
     return $this->httpGet($url);
