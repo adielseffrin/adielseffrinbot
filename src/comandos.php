@@ -173,7 +173,7 @@ function apresentar($message, $write, $canal)
   $write->ircPrivmsg($canal, $msg);
 }
 
-function comandosPvt($message, $twitter, $write, $canal, $usuarioArray = null)
+function comandosPvt($message, $twitter, $twitch, $write, $canal, $usuarioArray = null)
 {
  
   $username = $message['user'];
@@ -182,7 +182,9 @@ function comandosPvt($message, $twitter, $write, $canal, $usuarioArray = null)
     $stack = explode(" ", $mesagemLower);
     switch($stack[0]){
       case "!liveon":
-        $twitter->Tweetar("Oi, sabia que já estamos online para mais uma live que talvez não tenha foco? Chega mais! http://twitch.tv/adielseffrin");
+        $details = $twitch->getStreamDetails();
+        $title = $details['data'][0]['title'];
+        $twitter->Tweetar("Oi, sabia que já estamos online para mais uma live que talvez não tenha foco? O título da live de hoje é: \"{$title}\" Chega mais! http://twitch.tv/adielseffrin");
         $write->ircPrivmsg($canal, "Ei @$username, tá postado!");
         $twitter->atualizaRT();
       break;

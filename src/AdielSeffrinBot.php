@@ -104,7 +104,7 @@ class AdielSeffrinBot
       if(isset($message['user']))
         $username = str_replace("@", "", $message['user']);
       else
-        $username = explode("!",$message['prefix'])[0];
+        $username = str_replace(":","",explode("!",$message['prefix'])[0]);
       
       $this->verificaUserNoChat($username);
       if (stripos($message['params']['text'], "!") === 0) {
@@ -194,7 +194,7 @@ class AdielSeffrinBot
           case "!freepizza":
           case "!liberaingrediente":
           case "!freeingredient":
-            comandosPvt($message,$this->twitter, $write, $_SERVER['TWITCH_CHANNEL']);
+            comandosPvt($message,$this->twitter, $this->twitch, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!apresentação":
           case "!apresentacao":
@@ -205,7 +205,7 @@ class AdielSeffrinBot
             if(!empty($stack[1])){
               $username = $stack[1];
               $index = $this->verificaUserNoChat($username);
-              comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL'], $this->pessoasNoChat[$index]);
+              comandosPvt($message,null,null, $write, $_SERVER['TWITCH_CHANNEL'], $this->pessoasNoChat[$index]);
             }
             break;
           case "!addsub":
@@ -216,11 +216,11 @@ class AdielSeffrinBot
               if(!empty($stack[1])){
                 $username = $stack[1];
                 $index = $this->verificaUserNoChat($username);
-                comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL'], $this->pessoasNoChat[$index]);
+                comandosPvt($message,null,null, $write, $_SERVER['TWITCH_CHANNEL'], $this->pessoasNoChat[$index]);
               }
               break;
           case "!mudaidioma":
-            comandosPvt($message,null, $write, $_SERVER['TWITCH_CHANNEL']);
+            comandosPvt($message,null,null, $write, $_SERVER['TWITCH_CHANNEL']);
             break;
           case "!sechama":
           case "!renomear":
@@ -228,7 +228,7 @@ class AdielSeffrinBot
               $oldNick = $stack[1];
               $newNick = $stack[2];
               $index = $this->verificaUserNoChat($oldNick);
-              comandosPvt($message, null, $write, $_SERVER['TWITCH_CHANNEL'],  $this->pessoasNoChat[$index]);
+              comandosPvt($message, null,null, $write, $_SERVER['TWITCH_CHANNEL'],  $this->pessoasNoChat[$index]);
             }
             break;
           case "!au":
