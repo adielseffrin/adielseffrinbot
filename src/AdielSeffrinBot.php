@@ -105,7 +105,7 @@ class AdielSeffrinBot
         $username = str_replace("@", "", $message['user']);
       else
         $username = str_replace(":","",explode("!",$message['prefix'])[0]);
-      
+        
       $this->verificaUserNoChat($username);
       if (stripos($message['params']['text'], "!") === 0) {
         $mesagemLower = strtolower($message['params']['text']);
@@ -149,14 +149,20 @@ class AdielSeffrinBot
           case "!inventário":
           case "!🛍":
           case "!bag":
-            $username = str_replace("@", "", $message['user']);
+            if(isset($message['user']))
+              $username = str_replace("@", "", $message['user']);
+            else
+              $username = str_replace(":","",explode("!",$message['prefix'])[0]);
             $index = array_search($username,array_column($this->pessoasNoChat, 'user'));
             comandosBD($message, $write, $_SERVER['TWITCH_CHANNEL'], $this->pessoasNoChat[$index]);
             break;
           case "!reuniao":
           case "!reunião":
           case "!meeting":
-            $username = str_replace("@", "", $message['user']);
+            if(isset($message['user']))
+              $username = str_replace("@", "", $message['user']);
+            else
+              $username = str_replace(":","",explode("!",$message['prefix'])[0]);
             $index = array_search($username,array_column($this->ausenciaArray, 'user'));
             if($index === false){
               $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], Mensagens::getMensagem('onMeeting',array(":nick" => $username)));
@@ -164,7 +170,10 @@ class AdielSeffrinBot
             }
             break;
           case "!lurk":
-            $username = str_replace("@", "", $message['user']);
+            if(isset($message['user']))
+              $username = str_replace("@", "", $message['user']);
+            else
+              $username = str_replace(":","",explode("!",$message['prefix'])[0]);
             $index = array_search($username,array_column($this->ausenciaArray, 'user'));
             if($index === false){
               $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], Mensagens::getMensagem('onLurk',array(":nick" => $username)));
@@ -175,7 +184,10 @@ class AdielSeffrinBot
           case "!voltei":
           case "!back":
           case "!imback":
-            $username = str_replace("@", "", $message['user']);
+            if(isset($message['user']))
+              $username = str_replace("@", "", $message['user']);
+            else
+              $username = str_replace(":","",explode("!",$message['prefix'])[0]);
             $index = array_search($username,array_column($this->ausenciaArray, 'user'));
             if($index !== false){
               $write->ircPrivmsg($_SERVER['TWITCH_CHANNEL'], Mensagens::getMensagem('onReturn',array(":nick" => $username)));
@@ -285,7 +297,10 @@ class AdielSeffrinBot
   }
 
   public function validaAusencia($message, $write){
-    $username = str_replace("@", "", $message['user']);
+    if(isset($message['user']))
+      $username = str_replace("@", "", $message['user']);
+    else
+      $username = str_replace(":","",explode("!",$message['prefix'])[0]);
     $index = array_search($username,array_column($this->ausenciaArray, 'user'));
     if($index !== false){
       $tipoAusencia = $this->ausenciaArray[$index]['event'];

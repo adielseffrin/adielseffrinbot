@@ -12,7 +12,10 @@ function ban($message, $write, $canal)
 
   switch (count($stack)) {
     case 1:
-      $username = str_replace("@", "", $message['user']);
+      if(isset($message['user']))
+        $username = str_replace("@", "", $message['user']);
+      else
+        $username = str_replace(":","",explode("!",$message['prefix'])[0]);
       switch(Language::getLanguage()){
         case 'en':
           $write->ircPrivmsg($canal, "@$username please get outto learn how to use the !ban command! (Just kidding!, You just need to type the user you want to \"ban\" (!ban user)");
@@ -45,7 +48,10 @@ function perguntas($message, $write, $canal)
 {
   $mesagemLower = strtolower($message['params']['text']);
   $stack = explode(" ", $mesagemLower);
-  $username = $message['user'];
+  if(isset($message['user']))
+    $username = str_replace("@", "", $message['user']);
+  else
+    $username = str_replace(":","",explode("!",$message['prefix'])[0]);
 
   if (count($stack) > 1) {
     if((strpos($mesagemLower, 'resposta') !== false 
@@ -73,7 +79,10 @@ function perguntas($message, $write, $canal)
 
 function comandos($message, $write, $canal)
 {
-  $username = $message['user'];
+  if(isset($message['user']))
+    $username = str_replace("@", "", $message['user']);
+  else
+    $username = str_replace(":","",explode("!",$message['prefix'])[0]);
   $comandos_p1 = "!ban = 'Bane' um coleguinha do chat (mas é de mentira) || ";
   $comandos_p1 .="!pergunta = Respondo suas dúvidas  mais cabulosas || ";
   $comandos_p1 .="!social = Veja as redes sociais desse streamer || ";
@@ -94,11 +103,17 @@ function comandos($message, $write, $canal)
 function comandosBD($message, $write, $canal,$usuarioArray){
   $mesagemLower = strtolower($message['params']['text']);
   $stack = explode(" ", $mesagemLower);
-  $username = $message['user'];
+  if(isset($message['user']))
+    $username = str_replace("@", "", $message['user']);
+  else
+    $username = str_replace(":","",explode("!",$message['prefix'])[0]);
   if(count($stack) == 1){
     switch($stack[0]){
       case "!fome":
-        $username = str_replace("@", "", $message['user']);
+        if(isset($message['user']))
+          $username = str_replace("@", "", $message['user']);
+        else
+          $username = str_replace(":","",explode("!",$message['prefix'])[0]);
         $userObj = $usuarioArray['object'];
         if($userObj->podeJogar()) {
           $pontos = $userObj->jogar();
@@ -167,7 +182,10 @@ function comandosBD($message, $write, $canal,$usuarioArray){
 
 function apresentar($message, $write, $canal)
 {
-  $username = $message['user'];
+  if(isset($message['user']))
+    $username = str_replace("@", "", $message['user']);
+  else
+    $username = str_replace(":","",explode("!",$message['prefix'])[0]);
   $msg = "Oi @".$username."! Eu sou o Adiel, tenho 32 anos e sou professor universitário e (ex)dev. Sou formado em matemática e pós em computação, mas nas horas vagas faço lives, tipo agora :) Perdemos o foco facilmente, mas sempre tem um !foca pra ajudar";
 
   $write->ircPrivmsg($canal, $msg);
@@ -176,7 +194,10 @@ function apresentar($message, $write, $canal)
 function comandosPvt($message, $twitter, $twitch, $write, $canal, $usuarioArray = null)
 {
  
-  $username = $message['user'];
+  if(isset($message['user']))
+    $username = str_replace("@", "", $message['user']);
+  else
+    $username = str_replace(":","",explode("!",$message['prefix'])[0]);
   if($username === "adielseffrin"){
     $mesagemLower = strtolower($message['params']['text']);
     $stack = explode(" ", $mesagemLower);
@@ -258,7 +279,7 @@ function comandosPvt($message, $twitter, $twitch, $write, $canal, $usuarioArray 
           $write->ircPrivmsg($canal, "Ei @adielseffrin, {$userObj->getNick()} agora é @{$stack[2]}");
         break;
       case "!surpresa":
-        Pizza::liberaIngrediente(10);
+        Pizza::liberaIngrediente(0);
         break;  
       case "!liberapizza":
       case "!freepizza":
