@@ -263,7 +263,7 @@ class Pizza{
         //validar ingredientes
         $ingredientes = Pizza::$ingredientes;
         $ids = implode(',',Pizza::$id_ingredientes);
-        $stmt = ConexaoBD::getInstance()->prepare("SELECT MIN(quantidade) as total FROM ingredientes_usuario WHERE id_usuario = :id_usuario and id_ingrediente IN ({$ids})");
+        $stmt = ConexaoBD::getInstance()->prepare("SELECT i.id, IFNULL((select quantidade from ingredientes_usuario as iu WHERE id_ingrediente = i.id and iu.id_usuario = :id_usuario),0) FROM ingredientes as i where id IN ({$ids});");
         $stmt->execute(array(':id_usuario'=>$objUser->getId()));
         
         $result = $stmt->fetch();
