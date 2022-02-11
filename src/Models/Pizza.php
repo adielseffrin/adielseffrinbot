@@ -32,7 +32,7 @@ class Pizza{
         $condicao = Pizza::$rodada++ != Pizza::$trigger;
         
         if($condicao)
-            Pizza::liberaIngrediente(mt_rand(0,10));
+            Pizza::liberaIngrediente(mt_rand(0,11));
         else{
             Pizza::$trigger = mt_rand (1, 3);
             Pizza::$rodada = 0;
@@ -61,7 +61,12 @@ class Pizza{
         $language = Language::getLanguage();
         if($language == 'pt_br'){
         $stmt = ConexaoBD::getInstance()->prepare("
-            SELECT p.descricao AS pizza, i.descricao AS ingrediente, ip.id_ingrediente FROM pizzas AS p 
+            SELECT 
+                p.descricao AS pizza,
+                i.descricao AS ingrediente, 
+                ip.id_ingrediente,
+                p.url_imagem 
+            FROM pizzas AS p 
             INNER JOIN ingredientes_pizzas AS ip 
             ON p.id = ip.id_pizza
             INNER JOIN ingredientes AS i
@@ -70,7 +75,12 @@ class Pizza{
          ");
         }else{
             $stmt = ConexaoBD::getInstance()->prepare("
-            SELECT p.description AS pizza, i.description AS ingrediente, ip.id_ingrediente FROM pizzas AS p 
+            SELECT 
+                p.description AS pizza, 
+                i.description AS ingrediente, 
+                ip.id_ingrediente,
+                p.url_imagem  
+            FROM pizzas AS p 
             INNER JOIN ingredientes_pizzas AS ip 
             ON p.id = ip.id_pizza
             INNER JOIN ingredientes AS i
@@ -84,6 +94,7 @@ class Pizza{
         $id_ingredientes = [];
         if(count($result)>0){
             $pizza = $result[0]["pizza"];  
+            $pizzaImg = $result[0]["url_imagem"];  
         }
         $ingr = array();
         foreach($result as $r){
@@ -95,6 +106,7 @@ class Pizza{
         return array(
             'pid'=>$pid,
             'pizza'=>$pizza,
+            'url_imagem'=>$pizzaImg,
             'ingr'=>$ingr,
             'ingredientes'=>$ingredientes,
             'id_ingredientes'=>$id_ingredientes,
@@ -109,7 +121,7 @@ class Pizza{
         $ingredientes = $dadosDaBusca['ingredientes'];
         $id_ingredientes = $dadosDaBusca['id_ingredientes'];
         
-        Pizza::$receita = array("id" => $pid, "descricao" => $pizza." (".implode(", ", $ingr).")");
+        Pizza::$receita = array("id" => $pid, "descricao" => $pizza." (".implode(", ", $ingr).")", "url_imagem" => $dadosDaBusca['url_imagem']);
         Pizza::$ingrediente = null;
         Pizza::$ingredientes = $ingredientes;
         Pizza::$id_ingredientes = $id_ingredientes;
@@ -251,7 +263,7 @@ class Pizza{
         //validar ingredientes
         $ingredientes = Pizza::$ingredientes;
         $ids = implode(',',Pizza::$id_ingredientes);
-        $stmt = ConexaoBD::getInstance()->prepare("SELECT MIN(quantidade) as total FROM ingredientes_usuario WHERE id_usuario = :id_usuario and id_ingrediente IN ({$ids})");
+        $stmt = ConexaoBD::getInstance()->prepare("SELECT i.id, IFNULL((select quantidade from ingredientes_usuario as iu WHERE id_ingrediente = i.id and iu.id_usuario = :id_usuario),0) FROM ingredientes as i where id IN ({$ids});");
         $stmt->execute(array(':id_usuario'=>$objUser->getId()));
         
         $result = $stmt->fetch();
@@ -339,6 +351,11 @@ class Pizza{
                 $desc = Pizza::$receita["descricao"];
             }
             $text =  Mensagens::getMensagem('onNewRecipe',array(':desc'=>$desc));
+            
+            $data = array("comida" => Pizza::$receita["descricao"],"url_imagem" => Pizza::$receita["url_imagem"]);
+            $header = array("time" => date('Y-m-d H:i:s'), 'type'=> 'pizza');
+            $mensagem = array('header' => $header, 'data' => $data);
+            file_put_contents('dados_tela.json', json_encode($mensagem));
         }
 
         if(Language::getLanguage() == "en"){
